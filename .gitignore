@@ -130,3 +130,5 @@ dmypy.json
 
 # This project
 spec
+bin
+pyvenv.cfg
