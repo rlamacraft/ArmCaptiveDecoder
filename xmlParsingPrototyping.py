@@ -51,12 +51,10 @@ class Instruction(XmlDecoder):
 
     def parse(self, instNode):
         self.name = instNode.getElementsByTagName("heading")[0]
-        if len(instNode.getElementsByTagName('iclass')) > 1:
-            raise NotImplementedError("Multiple instruction encodings are not yet supported.")
-        self.encoding = Encoding(instNode.getElementsByTagName("iclass")[0])
+        self.encodings = [Encoding(iclass) for iclass in instNode.getElementsByTagName("iclass")]
 
 xmlFile = "spec/ISA_v82A_A64_xml_00bet3.1/add_addsub_imm.xml" 
 instruction = Instruction(xml.dom.minidom.parse(xmlFile).documentElement)
 
-for box in instruction.encoding.bitSequences:
+for box in instruction.encodings[0].bitSequences:
     print(box)
