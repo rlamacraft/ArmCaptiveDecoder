@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import os
 from xml.dom.minidom import parse
 import xml.dom.minidom
 
@@ -53,8 +54,9 @@ class Instruction(XmlDecoder):
         self.name = instNode.getElementsByTagName("heading")[0]
         self.encodings = [Encoding(iclass) for iclass in instNode.getElementsByTagName("iclass")]
 
-xmlFile = "spec/ISA_v82A_A64_xml_00bet3.1/add_addsub_imm.xml" 
-instruction = Instruction(xml.dom.minidom.parse(xmlFile).documentElement)
-
-for box in instruction.encodings[0].bitSequences:
-    print(box)
+xmlDir = "spec/ISA_v82A_A64_xml_00bet3.1/"
+indexFile = xmlDir + "index.xml"
+indexXml = xml.dom.minidom.parse(indexFile)
+iforms = indexXml.getElementsByTagName('iform')
+xmlFiles = [iform.getAttribute('iformfile') for iform in iforms]
+instructions = [Instruction(xml.dom.minidom.parse(xmlDir + xmlFile)) for xmlFile in xmlFiles]
