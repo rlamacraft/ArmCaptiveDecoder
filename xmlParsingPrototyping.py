@@ -63,11 +63,7 @@ class BitSequence(XmlDecoder):
         self.width = int(getAttr(xmlNode, "width", 1))
         self.low_bit = self.high_bit - self.width + 1
         self.name = getAttr(xmlNode, "name", "_")
-        constants = [c.childNodes[0].data for c in xmlNode.getElementsByTagName("c") if len(c.childNodes) > 0 is not None]
-        self.parse_values(constants)
-
-    def __str__(self):
-        return "BitSequence{high_bit=" + str(self.high_bit) + ",width=" + str(self.width) + ",low_bit=" + str(self.low_bit) + ",name=" + self.name + ",constant=" + self.constants + "}"
+        self.parse_values([c.childNodes[0].data for c in xmlNode.getElementsByTagName("c") if len(c.childNodes) > 0 is not None])
 
 class Encoding(XmlDecoder):
 
