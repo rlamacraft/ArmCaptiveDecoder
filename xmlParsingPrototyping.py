@@ -68,6 +68,7 @@ class BitSequence(XmlDecoder):
 
     def __str__(self):
         return "BitSequence{high_bit=" + str(self.high_bit) + ",width=" + str(self.width) + ",low_bit=" + str(self.low_bit) + ",name=" + self.name + ",constant=" + self.constants + "}"
+
 class Encoding(XmlDecoder):
 
     def __init__(self, xmlNode):
@@ -79,6 +80,14 @@ class Encoding(XmlDecoder):
         self.instruction_set = "T16" if isT16 else xmlNode.getAttribute("isa")
         self.bitSequences = [BitSequence(boxNode, isT16) for boxNode in regDiagram.getElementsByTagName("box")]
         self.total_bit_sequence_length = sum([seq.width for seq in self.bitSequences])
+
+    def getBit(self, index):
+        index_of_remainder = index
+        for bitSequence in self.bitSequences:
+            if index_of_remainder < bitSequence.width:
+                return bitSequence.constants[index_of_remainder]
+            index_of_remainder -= bitSequences.width
+        raise ValueError("index (" + index + ") > length of instruction (" + self.total_bit_sequence_length)
 
 class Instruction(XmlDecoder):
 
