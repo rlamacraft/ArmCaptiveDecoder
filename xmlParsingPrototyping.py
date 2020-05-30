@@ -5,6 +5,7 @@ import os
 import re
 from xml.dom.minidom import parse
 import xml.dom.minidom
+import itertools
 
 def getAttr(element, name, default):
     """Similar API to getAttr, but for DOM Elements"""
@@ -38,13 +39,32 @@ def readBitValue(string):
     }
     if string in encodings:
         return(encodings[string])
-    else:
-        raise ValueError("Unknown bit value: " + string)
+    raise ValueError("Unknown bit value: " + string)
+
+def strBitValue(bitValuePair):
+    decodings = {
+        (BitValueType.Unbound, None): "x",
+        (BitValueType.Bound, Bit.Zero): "0",
+        (BitValueType.Bound, Bit.One): "1",
+        (BitValueType.Unpredictably_bound, Bit.Zero): "(0)",
+        (BitValueType.Unpredictably_bound, Bit.One): "(1)"
+    }
+    if bitValuePair in decodings:
+        return(decodings[bitValuePair])
+    raise ValueError("Unknown bit value: " + bitValuePair)
 
 class BitSequence(XmlDecoder):
 
     def __init__(self, xmlNode, isT16):
         self.parse(xmlNode, isT16)
+
+    def __str__(self):
+        ret = ""
+        if self.inverted:
+            ret += "!"
+        # ret += "".join(["(" + str(bitValueType) + ", " + str(bitValue) + ")" for (bitValueType,bitValue) in self.constants])
+        ret += "".join([strBitValue(bitValue) for bitValue in self.constants])
+        return(ret)
 
     def parse_values(self, constants):
         if constants == []:
@@ -70,6 +90,9 @@ class Encoding(XmlDecoder):
     def __init__(self, xmlNode):
         self.parse(xmlNode)
 
+    def __str__(self):
+        return(":".join([str(seq) for seq in self.bitSequences]))
+
     def parse(self, xmlNode):
         regDiagram = xmlNode.getElementsByTagName("regdiagram")[0]
         isT16 = regDiagram.getAttribute("form") == "16"
@@ -77,13 +100,26 @@ class Encoding(XmlDecoder):
         self.bitSequences = [BitSequence(boxNode, isT16) for boxNode in regDiagram.getElementsByTagName("box")]
         self.total_bit_sequence_length = sum([seq.width for seq in self.bitSequences])
 
-    def getBit(self, index):
+    def getSequenceByBitIndex(self, index):
         index_of_remainder = index
         for bitSequence in self.bitSequences:
             if index_of_remainder < bitSequence.width:
-                return bitSequence.constants[index_of_remainder]
-            index_of_remainder -= bitSequences.width
+                return bitSequence
+            index_of_remainder -= bitSequence.width
         raise ValueError("index (" + index + ") > length of instruction (" + self.total_bit_sequence_length)
+
+    def getBit(self, index):
+        sequence = self.getSequenceByBitIndex(index)
+        return(sequence.constants[index - (31 - sequence.high_bit)]) # TODO: test
+        # index_of_remainder = index
+        # for bitSequence in self.bitSequences:
+        #     if index_of_remainder < bitSequence.width:
+        #         return bitSequence.constants[index_of_remainder]
+        #     index_of_remainder -= bitSequence.width
+        # raise ValueError("index (" + index + ") > length of instruction (" + self.total_bit_sequence_length)
+
+    def getBitRange(self, lower, upper):
+        return([self.getBit(i) for i in range(lower, upper)])
 
 class Instruction(XmlDecoder):
 
@@ -91,18 +127,74 @@ class Instruction(XmlDecoder):
         self.parse(xmlNode)
 
     def parse(self, instNode):
-        self.name = instNode.getElementsByTagName("heading")[0]
+        self.name = instNode.getElementsByTagName("heading")[0].childNodes[0].data
         self.encodings = [Encoding(iclass) for iclass in instNode.getElementsByTagName("iclass")]
 
+# PARSE XML FILES
+
 def parseInstruction(xmlDir, xmlFile):
-    print(xmlFile)
     path = xmlDir + xmlFile
     xml_data = xml.dom.minidom.parse(path)
     return(Instruction(xml_data))
 
-xmlDir = "spec/ISA_v82A_A64_xml_00bet3.1/"
-indexFile = xmlDir + "index.xml"
-indexXml = xml.dom.minidom.parse(indexFile)
-iforms = indexXml.getElementsByTagName('iform')
-xmlFiles = [iform.getAttribute('iformfile') for iform in iforms]
-instructions = [parseInstruction(xmlDir, xmlFile) for xmlFile in xmlFiles]
+def parseAllFiles():
+	xmlDir = "spec/ISA_v82A_A64_xml_00bet3.1/"
+	indexFile = xmlDir + "index.xml"
+	indexXml = xml.dom.minidom.parse(indexFile)
+	iforms = indexXml.getElementsByTagName('iform')
+	xmlFiles = [iform.getAttribute('iformfile') for iform in iforms]
+	instructions = [parseInstruction(xmlDir, xmlFile) for xmlFile in xmlFiles]
+	return(instructions)
+
+# BUILD ABSTRACT DECODER
+
+def splitInstructionsByBitPosition(encoding_instructions_mapping, position, prefix):
+    """Attempt 1: Split on each bit, producing binary tree of depth 32. Takes too long."""
+    if position > 31:
+        return(encoding_instructions_mapping.values())
+    if len(encoding_instructions_mapping.items()) < 2:
+        return(encoding_instructions_mapping.values())
+    indent = " " * position
+    print(indent, "Comparing bits at position", position, "( prefix:", prefix, ")")
+    zeros = dict()
+    ones = dict()
+    for encoding, inst in encoding_instructions_mapping.items():
+        (bit_type, bit_value) = encoding.getBit(position)
+        if   (bit_type == BitValueType.Unbound) \
+          or (bit_type == BitValueType.Bound and bit_value == Bit.Zero) \
+          or (bit_type == BitValueType.Unpredictably_bound and bit_value == bit.Zero):
+            zeros[encoding] = inst
+        if   (bit_type == BitValueType.Unbound) \
+          or (bit_type == BitValueType.Bound and bit_value == Bit.One) \
+          or (bit_type == BitValueType.Unpredictably_bound and bit_value == Bit.One):
+            ones[encoding] = inst
+    print(indent, len(zeros.items()), " items in the zeros set")
+    print(indent, len(ones.items()), " items in the ones set")
+    return((splitInstructionsByBitPosition(zeros, position + 1, prefix + '0'), \
+            splitInstructionsByBitPosition(ones, position + 1, prefix + '1')))
+
+def splitInstructionsByBitSequence(encoding_instructions_mapping, position):
+    """Attempt 2: (WIP) split on bit sequences"""
+    if position > 31:
+        return(encoding_instruction_mapping)
+    next_sequence_upper_bound = 31 - list(encoding_instruction_mapping.keys())[0].getSequenceByBitIndex(position).low_bit
+    print("next_sequence_upper_bound", next_sequence_upper_bound)
+    branches = dict()
+    for encoding, inst in encoding_instruction_mapping.items():
+        print("instruction", inst.name)
+        print("encoding", str(encoding))
+        sub_sequence = "".join([strBitValue(x) for x in encoding.getBitRange(position, next_sequence_upper_bound + 1)])
+        if sub_sequence not in branches:
+            branches[sub_sequence] = []
+        branches[sub_sequence] += (encoding, inst)
+    return(branches)
+
+instructions = parseAllFiles()
+print("Parsed", len(instructions), "instructions.")
+encoding_instruction_mapping = dict(list(itertools.chain(*[[(encoding, inst) for encoding in inst.encodings] for inst in instructions[0:-1]])))
+print("\n".join([str(enc) for enc in list(encoding_instruction_mapping.keys())]))
+print("Built mapping from encodings to instructions.")
+# decode_binary_tree = splitInstructionsByBitPosition(encoding_instruction_mapping, 0, "")
+
+# print(splitInstructionsByBitSequence(encoding_instruction_mapping, 2))
+
