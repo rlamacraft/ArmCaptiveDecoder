@@ -100,6 +100,7 @@ class Encoding(XmlDecoder):
         self.bitSequences = [BitSequence(boxNode, isT16) for boxNode in regDiagram.getElementsByTagName("box")]
         self.total_bit_sequence_length = sum([seq.width for seq in self.bitSequences])
 
+    # note: doesn't support inverted sequences
     def getSequenceByBitIndex(self, index):
         index_of_remainder = index
         for bitSequence in self.bitSequences:
@@ -197,4 +198,18 @@ print("Built mapping from encodings to instructions.")
 # decode_binary_tree = splitInstructionsByBitPosition(encoding_instruction_mapping, 0, "")
 
 # print(splitInstructionsByBitSequence(encoding_instruction_mapping, 2))
+
+# bit positions 3, 4, and 5 are bound for all instructions
+always_bound = [True] * 32
+always_unbound = [True] * 32
+for position in range(0, 32):
+    for encoding in list(encoding_instruction_mapping.keys()):
+        (bitValueType, _) = encoding.getBit(position)
+        if bitValueType == BitValueType.Unbound:
+            always_bound[position] = False
+        if bitValueType == BitValueType.Bound or bitValueType == BitValueType.Unpredictably_bound:
+            always_unbound[position] = False
+print("always_bound  ", "".join(["T" if b else "F" for b in always_bound]))
+print("always_unbound", "".join(["T" if b else "F" for b in always_unbound]))
+
 
