@@ -20,6 +20,13 @@ class Bit(Enum):
     Zero = 0
     One = 1
 
+    def __str__(self):
+        if self == Bit.Zero:
+            return "0"
+        if self == Bit.One:
+            return "1"
+        raise ValueError("Impossible")
+
 class BitSequenceType(Enum):
     Sequence = 0
     Inverted_Sequence = 1
@@ -87,7 +94,8 @@ class BitSequence(XmlDecoder):
 
 class Encoding(XmlDecoder):
 
-    def __init__(self, xmlNode):
+    def __init__(self, xmlNode, instruction):
+        self.instruction = instruction
         self.parse(xmlNode)
 
     def __str__(self):
@@ -123,7 +131,7 @@ class Instruction(XmlDecoder):
 
     def parse(self, instNode):
         self.name = instNode.getElementsByTagName("heading")[0].childNodes[0].data
-        self.encodings = [Encoding(iclass) for iclass in instNode.getElementsByTagName("iclass")]
+        self.encodings = [Encoding(iclass, self) for iclass in instNode.getElementsByTagName("iclass")]
 
 # PARSE XML FILES
 
@@ -143,51 +151,51 @@ def parseAllFiles():
 
 # BUILD ABSTRACT DECODER
 
-def splitInstructionsByBitPosition(encoding_instructions_mapping, position, prefix):
-    """Attempt 1: Split on each bit, producing binary tree of depth 32. Takes too long."""
-    if position > 31:
-        return(encoding_instructions_mapping.values())
-    if len(encoding_instructions_mapping.items()) < 2:
-        return(encoding_instructions_mapping.values())
-    indent = " " * position
-    print(indent, "Comparing bits at position", position, "( prefix:", prefix, ")")
-    zeros = dict()
-    ones = dict()
-    for encoding, inst in encoding_instructions_mapping.items():
-        (bit_type, bit_value) = encoding.getBit(position)
-        if   (bit_type == BitValueType.Unbound) \
-          or (bit_type == BitValueType.Bound and bit_value == Bit.Zero) \
-          or (bit_type == BitValueType.Unpredictably_bound and bit_value == bit.Zero):
-            zeros[encoding] = inst
-        if   (bit_type == BitValueType.Unbound) \
-          or (bit_type == BitValueType.Bound and bit_value == Bit.One) \
-          or (bit_type == BitValueType.Unpredictably_bound and bit_value == Bit.One):
-            ones[encoding] = inst
-    print(indent, len(zeros.items()), " items in the zeros set")
-    print(indent, len(ones.items()), " items in the ones set")
-    return((splitInstructionsByBitPosition(zeros, position + 1, prefix + '0'), \
-            splitInstructionsByBitPosition(ones, position + 1, prefix + '1')))
+# def splitInstructionsByBitPosition(encoding_instructions_mapping, position, prefix):
+#     """Attempt 1: Split on each bit, producing binary tree of depth 32. Takes too long."""
+#     if position > 31:
+#         return(encoding_instructions_mapping.values())
+#     if len(encoding_instructions_mapping.items()) < 2:
+#         return(encoding_instructions_mapping.values())
+#     indent = " " * position
+#     print(indent, "Comparing bits at position", position, "( prefix:", prefix, ")")
+#     zeros = dict()
+#     ones = dict()
+#     for encoding, inst in encoding_instructions_mapping.items():
+#         (bit_type, bit_value) = encoding.getBit(position)
+#         if   (bit_type == BitValueType.Unbound) \
+#           or (bit_type == BitValueType.Bound and bit_value == Bit.Zero) \
+#           or (bit_type == BitValueType.Unpredictably_bound and bit_value == bit.Zero):
+#             zeros[encoding] = inst
+#         if   (bit_type == BitValueType.Unbound) \
+#           or (bit_type == BitValueType.Bound and bit_value == Bit.One) \
+#           or (bit_type == BitValueType.Unpredictably_bound and bit_value == Bit.One):
+#             ones[encoding] = inst
+#     print(indent, len(zeros.items()), " items in the zeros set")
+#     print(indent, len(ones.items()), " items in the ones set")
+#     return((splitInstructionsByBitPosition(zeros, position + 1, prefix + '0'), \
+#             splitInstructionsByBitPosition(ones, position + 1, prefix + '1')))
 
-def splitInstructionsByBitSequence(encoding_instructions_mapping, position):
-    """Attempt 2: (WIP) split on bit sequences"""
-    if position > 31:
-        return(encoding_instruction_mapping)
-    next_sequence_upper_bound = 31 - list(encoding_instruction_mapping.keys())[0].getSequenceByBitIndex(position).low_bit
-    print("next_sequence_upper_bound", next_sequence_upper_bound)
-    branches = dict()
-    for encoding, inst in encoding_instruction_mapping.items():
-        print("instruction", inst.name)
-        print("encoding", str(encoding))
-        sub_sequence = "".join([strBitValue(x) for x in encoding.getBitRange(position, next_sequence_upper_bound + 1)])
-        if sub_sequence not in branches:
-            branches[sub_sequence] = []
-        branches[sub_sequence] += (encoding, inst)
-    return(branches)
+# def splitInstructionsByBitSequence(encoding_instructions_mapping, position):
+#     """Attempt 2: (WIP) split on bit sequences"""
+#     if position > 31:
+#         return(encoding_instruction_mapping)
+#     next_sequence_upper_bound = 31 - list(encoding_instruction_mapping.keys())[0].getSequenceByBitIndex(position).low_bit
+#     print("next_sequence_upper_bound", next_sequence_upper_bound)
+#     branches = dict()
+#     for encoding, inst in encoding_instruction_mapping.items():
+#         print("instruction", inst.name)
+#         print("encoding", str(encoding))
+#         sub_sequence = "".join([strBitValue(x) for x in encoding.getBitRange(position, next_sequence_upper_bound + 1)])
+#         if sub_sequence not in branches:
+#             branches[sub_sequence] = []
+#         branches[sub_sequence] += (encoding, inst)
+#     return(branches)
 
-def findPositionsBoundForAll(enc_inst_map):
+def findPositionsBoundForAll(encodings):
     always_bound = [True] * 32
     for position in range(0, 32):
-        for encoding in list(enc_inst_map.keys()):
+        for encoding in encodings:
             (bitValueType, _) = encoding.getBit(position)
             if bitValueType == BitValueType.Unbound:
                 always_bound[position] = False
@@ -197,57 +205,167 @@ def findPositionsBoundForAll(enc_inst_map):
             always_bound_positions.append(i)
     return(always_bound_positions)
 
-def splitEncodingsByCommonBit(enc_inst_map, common_bit_position):
-    zeros = dict()
-    ones = dict()
-    for encoding, inst in enc_inst_map.items():
+def splitEncodingsByCommonBit(encodings, common_bit_position):
+    zeros = []
+    ones = []
+    for encoding in encodings:
         (bit_type, bit_value) = encoding.getBit(common_bit_position)
         if   (bit_type == BitValueType.Unbound) \
           or (bit_type == BitValueType.Bound and bit_value == Bit.Zero) \
           or (bit_type == BitValueType.Unpredictably_bound and bit_value == bit.Zero):
-            zeros[encoding] = inst
+            zeros.append(encoding)
         if   (bit_type == BitValueType.Unbound) \
           or (bit_type == BitValueType.Bound and bit_value == Bit.One) \
           or (bit_type == BitValueType.Unpredictably_bound and bit_value == Bit.One):
-            ones[encoding] = inst
+            ones.append(encoding)
     return([zeros, ones])
 
-def splitEncodingsByCommonBoundBit(enc_inst_map, common_bound_positions):
-    sets = [enc_inst_map]
+def splitEncodingsByCommonBoundBit(encodings, common_bound_positions):
+    sets = [encodings]
     for bit_position in common_bound_positions:
-        # print("checking bit position", bit_position)
         new_sets = []
-        # printBinaryTree(sets)
         for each_set in sets:
-            # print("each_set has", len(each_set), "elements")
-            # printBinaryTree([each_set])
             another_two_sets = splitEncodingsByCommonBit(each_set, bit_position)
-            # printBinaryTree(another_two_sets)
             new_sets += another_two_sets
         sets = new_sets
-        # printBinaryTree(sets)
     return(sets)
 
 def printBinaryTree(sets):
     for index, each_set in enumerate(sets):
         print("#####", index, "#####")
-        for enc, inst in each_set.items():
-            print(str(enc), ":", inst.name)
+        for encoding in each_set:
+            print(str(encoding), ":", encoding.instruction.name)
+
+class EncodingsSet():
+
+    def __init__(self, encodings, shared_bits):
+        self.encodings = encodings
+        self.shared_bits = shared_bits
+        # NOTE: the invariant that all encodings do share such bits is not asserted
+
+    def __len__(self):
+        return(len(self.encodings))
+
+    def __str__(self):
+        out = f"{len(self.encodings)} share the bits "
+        out += "{"
+        shared_bits_str = []
+        shared_bits_items = list(self.shared_bits.items())
+        shared_bits_items.sort()
+        for shared_bit, shared_value in shared_bits_items:
+            shared_value_str = "0" if shared_value == Bit.Zero else "1"
+            shared_bits_str.append(f"{shared_bit}:{shared_value_str}")
+        out += ", ".join(shared_bits_str)
+        out += "}\n"
+        for encoding in self.encodings:
+            out += f"- {str(encoding)} ({encoding.instruction.name})\n"
+        return(out)
+
+    def append(self, encoding):
+        self.encodings |= {encoding}
+
+    # returns two new encoding sets
+    def split(self, common_bit_position):
+        if common_bit_position in self.shared_bits.keys():
+            raise ValueError(common_bit_position, "is already shared by all members of this encoding set")
+
+        zeros_shared_bits = self.shared_bits.copy()
+        zeros_shared_bits[common_bit_position] = Bit.Zero
+        zeros = EncodingsSet(set(), zeros_shared_bits)
+
+        ones_shared_bits = self.shared_bits.copy()
+        ones_shared_bits[common_bit_position] = Bit.One
+        ones = EncodingsSet(set(), ones_shared_bits)
+
+        for encoding in self.encodings:
+            (bit_type, bit_value) = encoding.getBit(common_bit_position)
+            if   (bit_type == BitValueType.Unbound) \
+              or (bit_type == BitValueType.Bound and bit_value == Bit.Zero) \
+              or (bit_type == BitValueType.Unpredictably_bound and bit_value == Bit.Zero):
+                zeros.append(encoding)
+            if   (bit_type == BitValueType.Unbound) \
+              or (bit_type == BitValueType.Bound and bit_value == Bit.One) \
+              or (bit_type == BitValueType.Unpredictably_bound and bit_value == Bit.One):
+                ones.append(encoding)
+        return({zeros, ones})
+
+    # returns 2 ** n new encoding sets by splitting on n bit positions
+    def splitMany(self, common_bit_positions):
+        sets = {self}
+        for bit_position in common_bit_positions:
+            new_set = set()
+            for each_set in sets:
+                new_set |= each_set.split(bit_position)
+            sets = new_set
+        return(sets)
+
+    # in addition to the bits listed by self.shared_bits, there may be other bits that are commonly bound - split on those
+    def findOtherCommonlyBoundBits(self):
+        other_bits = set(range(32)) - set(self.shared_bits.keys())
+        unbound_in_an_instruction = set()
+        for position in other_bits:
+            for encoding in self.encodings:
+                (bitValueType, _) = encoding.getBit(position)
+                if bitValueType == BitValueType.Unbound:
+                    unbound_in_an_instruction |= {position}
+                    break
+        return(other_bits - unbound_in_an_instruction)
+
+    def splitOnCommonBoundBits(self):
+        return(self.splitMany(self.findOtherCommonlyBoundBits()))
+
+    def findDifferentBoundValue(self):
+       other_bits = set(range(32)) - set(self.shared_bits.keys())
+       different = set()
+       for position in other_bits:
+           values = set()
+           for encoding in self.encodings:
+               (_, bitValue) = encoding.getBit(position)
+               if bitValue != None:
+                   values |= {bitValue}
+           if len(values) == 2:
+                different |= {position}
+       return(different)
+
+    def splitOnDifferentBoundValue(self):
+       return(self.splitMany(self.findDifferentBoundValue()))
+
+def splitOnCommonBoundAndThenDifferentBoundValue(encoding_set):
+    sets_from_common_bound = encoding_set.splitOnCommonBoundBits()
+    # sets_from_different_bound_value = set()
+    # for each_set in sets_from_common_bound:
+    #     sets_from_different_bound_value |= each_set.splitOnDifferentBoundValue()
+    # return(sets_from_different_bound_value)
+    return(sets_from_common_bound)
+
+def findCommonBitsAndSplitRecursively(encoding_set, depth):
+    if depth > 6:
+        return {encoding_set}
+    encoding_subsets = encoding_set.splitOnCommonBoundBits()
+    # encoding_subsets = splitOnCommonBoundAndThenDifferentBoundValue(encoding_set)
+    encoding_subsubsets = set()
+    for subset in encoding_subsets:
+        if len(subset) > 1:      # i.e. more sub-dividing is necessary
+            # encoding_subsubsets |= subset.splitOnCommonBoundBits()
+            encoding_subsubsets |= findCommonBitsAndSplitRecursively(subset, depth + 1)
+        else:
+            encoding_subsubsets |= {subset}
+    return(encoding_subsubsets)
 
 instructions = parseAllFiles()
 print("Parsed", len(instructions), "instructions.")
-encoding_instruction_mapping = dict(list(itertools.chain(*[[(encoding, inst) for encoding in inst.encodings] for inst in instructions[0:40]])))
-print("\n".join([str(enc) for enc in list(encoding_instruction_mapping.keys())]))
-print("Built mapping from encodings to instructions.")
+
+# For purposes of intial prototyping, will we consider the encodings of only a subset of all of the instructions
+encodings = list(itertools.chain(*[inst.encodings for inst in instructions[0:-1]]))
 
 # bit positions 3, 4, and 5 are bound for all instructions
-always_bound = findPositionsBoundForAll(encoding_instruction_mapping)
-print(always_bound)
 # so split all of the instructions into 8 groups (actually 4 groups "010", "100", "101", and "110")
-split = splitEncodingsByCommonBoundBit(encoding_instruction_mapping, always_bound)
-printBinaryTree(split)
+# split = splitEncodingsByCommonBoundBit(encodings, findPositionsBoundForAll(encodings))
+# printBinaryTree(split)
 
-# now repeat
-for subset in [s for s in split if s ]:
-    print("***")
-    printBinaryTree(splitEncodingsByCommonBoundBit(subset, findPositionsBoundForAll(subset)))
+# # now repeat
+# for subset in [s for s in split if s ]:
+#     print("***")
+#     printBinaryTree(splitEncodingsByCommonBoundBit(subset, findPositionsBoundForAll(subset)))
+encoding_set = EncodingsSet(set(encodings), {})
+[print(str(encoding_set)) for encoding_set in list(findCommonBitsAndSplitRecursively(encoding_set, 0)) if len(encoding_set) > 0]
