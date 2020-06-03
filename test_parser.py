@@ -113,10 +113,38 @@ class TestEncoding(unittest.TestCase):
 class TestInstruction(unittest.TestCase):
 
     @staticmethod
-    def xml():
+    def instruction_without_alias_xml():
         return("""
-        <instructionsection>
+        <instructionsection type="instruction">
           <heading>Example</heading>
+          <alias_list howmany="0">
+          </alias_list>
+          <classes>""" +
+               TestEncoding.xml() +
+          """
+          </classes>
+        </instructionsection>""")
+
+    @staticmethod
+    def instruction_with_alias_xml():
+        return("""
+        <instructionsection type="instruction">
+          <heading>Example</heading>
+          <alias_list howmany="1">
+            <aliasref aliasfile="alias.xml"></aliasref>
+          </alias_list>
+          <classes>""" +
+               TestEncoding.xml() +
+          """
+          </classes>
+        </instructionsection>""")
+
+    @staticmethod
+    def alias_xml():
+        return("""
+        <instructionsection type="alias">
+          <heading>Alias</heading>
+          <aliasto refiform="example.xml"></aliasto>
           <classes>""" +
                TestEncoding.xml() +
           """
@@ -124,9 +152,27 @@ class TestInstruction(unittest.TestCase):
         </instructionsection>""")
 
     def test_parse(self):
-        instruction = Instruction("example.xml", parseSingleNode(TestInstruction.xml()))
+        # No aliases
+        instruction = Instruction("example.xml",
+                                  parseSingleNode(TestInstruction.instruction_without_alias_xml()))
         self.assertEqual(instruction.name, "Example")
         self.assertEqual(len(instruction.encodings), 1)
+        instruction.update_alias_references(dict([("example.xml", instruction)]))
+        self.assertEqual(instruction.aliaslist, set([]))
+
+        # With aliases
+        aliased_instruction = Instruction("example.xml",
+                                          parseSingleNode(TestInstruction.instruction_with_alias_xml()))
+        alias = Instruction("alias.xml",
+                            parseSingleNode(TestInstruction.alias_xml()))
+        filename_inst_dict = dict([
+            ("example.xml", aliased_instruction),
+            ("alias.xml", alias)
+        ])
+        aliased_instruction.update_alias_references(filename_inst_dict)
+        self.assertEqual(aliased_instruction.aliaslist, set([alias]))
+        alias.update_alias_references(filename_inst_dict)
+        self.assertEqual(alias.aliasto, aliased_instruction)
 
 def main():
     unittest.main()

@@ -113,9 +113,6 @@ def findCommonBitsAndSplitRecursively(encoding_set, depth):
 instructions = parseAllFiles()
 print("Parsed", len(instructions), "instructions.")
 
-# For purposes of intial prototyping, will we consider the encodings of only a subset of all of the instructions
-encodings = list(itertools.chain(*[inst.encodings for inst in instructions[0:-1]]))
-
+encodings = list(itertools.chain(*[inst.encodings for inst in instructions]))
 encoding_set = EncodingsSet(set(encodings), {})
 [print(str(encoding_set)) for encoding_set in list(findCommonBitsAndSplitRecursively(encoding_set, 0)) if len(encoding_set) > 0]
-# TODO: What about aliases?

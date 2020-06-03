@@ -118,9 +118,23 @@ class Instruction(XmlDecoder):
         self.fileName = fileName
         self.parse(xmlNode)
 
-    def parse(self, instNode):
+    def parse(self, xmlNode):
+        instNode = xmlNode.getElementsByTagName("instructionsection")[0]
         self.name = instNode.getElementsByTagName("heading")[0].childNodes[0].data
+        self.is_alias = getAttr(instNode, "type", "instruction") == "alias"
         self.encodings = [Encoding(iclass, self) for iclass in instNode.getElementsByTagName("iclass")]
+        if self.is_alias:
+            self.aliasto_filename = instNode.getElementsByTagName('aliasto')[0].getAttribute('refiform')
+        else:
+            alias_list_node = instNode.getElementsByTagName('alias_list')[0]
+            self.aliaslist_filenames = set([aliasref.getAttribute('aliasfile') for aliasref
+                                        in alias_list_node.getElementsByTagName('aliasref')])
+
+    def update_alias_references(self, filename_inst_mapping):
+        if self.is_alias:
+            self.aliasto = filename_inst_mapping[self.aliasto_filename]
+        else:
+            self.aliaslist = set([filename_inst_mapping[filename] for filename in self.aliaslist_filenames])
 
 def parseInstruction(xmlDir, xmlFile):
     path = xmlDir + xmlFile
@@ -128,10 +142,19 @@ def parseInstruction(xmlDir, xmlFile):
     return(Instruction(xmlFile, xml_data))
 
 def parseAllFiles():
-	xmlDir = "spec/ISA_v82A_A64_xml_00bet3.1/"
-	indexFile = xmlDir + "index.xml"
-	indexXml = xml.dom.minidom.parse(indexFile)
-	iforms = indexXml.getElementsByTagName('iform')
-	xmlFiles = [iform.getAttribute('iformfile') for iform in iforms]
-	instructions = [parseInstruction(xmlDir, xmlFile) for xmlFile in xmlFiles]
-	return(instructions)
+    xmlDir = "spec/ISA_v82A_A64_xml_00bet3.1/"
+    indexFile = xmlDir + "index.xml"
+    indexXml = xml.dom.minidom.parse(indexFile)
+    iforms = indexXml.getElementsByTagName('iform')
+    xmlFiles = [iform.getAttribute('iformfile') for iform in iforms]
+    instructions_and_aliases = dict([(xmlFile, parseInstruction(xmlDir, xmlFile)) for xmlFile in xmlFiles])
+
+    # Convert alias filenames to object references
+    just_instructions = set()
+    for filename, inst in instructions_and_aliases.items():
+        if not inst.is_alias:
+            just_instructions |= {inst}
+        inst.update_alias_references(instructions_and_aliases)
+
+    return(just_instructions)
+
