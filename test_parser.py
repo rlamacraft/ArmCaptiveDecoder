@@ -59,10 +59,9 @@ class TestBitSequence(unittest.TestCase):
 
 class TestEncoding(unittest.TestCase):
 
-    def test_parse(self):
-        bit_sequence_xml = """
-                """
-        xml = """
+    @staticmethod
+    def xml():
+        return("""
         <iclass isa="A64">
           <regdiagram form="32">
             <box hibit="31" name="sf" width="32">
@@ -101,13 +100,33 @@ class TestEncoding(unittest.TestCase):
             </box>
           </regdiagram>
         </iclass>
-        """
-        encoding = Encoding(parseSingleNode(xml), None)
+        """)
+
+    def test_parse(self):
+        encoding = Encoding(parseSingleNode(TestEncoding.xml()), None)
         self.assertEqual(encoding.instruction_set, "A64")
 
         zero = (BitValueType.Bound, Bit.Zero)
         self.assertEqual(encoding.getBit(0), zero)
         self.assertEqual(encoding.getBitRange(0,3), [zero] * 3)
+
+class TestInstruction(unittest.TestCase):
+
+    @staticmethod
+    def xml():
+        return("""
+        <instructionsection>
+          <heading>Example</heading>
+          <classes>""" +
+               TestEncoding.xml() +
+          """
+          </classes>
+        </instructionsection>""")
+
+    def test_parse(self):
+        instruction = Instruction("example.xml", parseSingleNode(TestInstruction.xml()))
+        self.assertEqual(instruction.name, "Example")
+        self.assertEqual(len(instruction.encodings), 1)
 
 def main():
     unittest.main()
