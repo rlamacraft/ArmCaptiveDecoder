@@ -92,16 +92,21 @@ class EncodingsSet():
     def splitOnDifferentBoundValue(self):
        return(self.splitMany(self.findDifferentBoundValue()))
 
-def findCommonBitsAndSplitRecursively(encoding_set, depth):
-    if depth > 7:  # prevents infinite loops as some instructions appear to be indistinguishable
-        return {encoding_set}
+def findCommonBitsAndSplitRecursively(encoding_set):
     encoding_subsets = encoding_set.splitOnCommonBoundBits()
+    if len(encoding_subsets) == 1:
+        # stop when splitting does nothing but apply singleton function
+        return {encoding_set}
     encoding_subsubsets = set()
     for subset in encoding_subsets:
-        if len(subset) > 1:      # i.e. more sub-dividing may be possible
-            encoding_subsubsets |= findCommonBitsAndSplitRecursively(subset, depth + 1)
-        else:
+        if len(subset) == 0:
+            # we don't care about empty encoding sets
+            pass
+        elif len(subset) == 1:
+            # don't split singletons sets to keep the minimum shared_bits set
             encoding_subsubsets |= {subset}
+        else:
+            encoding_subsubsets |= findCommonBitsAndSplitRecursively(subset)
     return(encoding_subsubsets)
 
 if __name__ == "__main__":
@@ -110,4 +115,4 @@ if __name__ == "__main__":
 
     encodings = list(itertools.chain(*[inst.encodings for inst in instructions]))
     encoding_set = EncodingsSet(set(encodings), {})
-    [print(str(encoding_set)) for encoding_set in list(findCommonBitsAndSplitRecursively(encoding_set, 0)) if len(encoding_set) > 0]
+    [print(str(encoding_set)) for encoding_set in list(findCommonBitsAndSplitRecursively(encoding_set))]
