@@ -82,8 +82,8 @@ class EncodingsSet():
        for position in other_bits:
            values = set()
            for encoding in self.encodings:
-               (_, bitValue) = encoding.getBit(position)
-               if bitValue != None:
+               (bitValueType, bitValue) = encoding.getBit(position)
+               if bitValueType != BitValueType.Unbound:
                    values |= {bitValue}
            if len(values) == 2:
                 different |= {position}
