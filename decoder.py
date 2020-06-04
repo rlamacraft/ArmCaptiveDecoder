@@ -15,18 +15,12 @@ class EncodingsSet():
         return(len(self.encodings))
 
     def __str__(self):
-        out = f"{len(self.encodings)} share the bits "
-        out += "{"
-        shared_bits_str = []
-        shared_bits_items = list(self.shared_bits.items())
-        shared_bits_items.sort()
-        for shared_bit, shared_value in shared_bits_items:
-            shared_value_str = "0" if shared_value == Bit.Zero else "1"
-            shared_bits_str.append(f"{shared_bit}:{shared_value_str}")
-        out += ", ".join(shared_bits_str)
-        out += "}\n"
+        out = f"{len(self.encodings)} instructions share the bits: "
+        for bit in range(0,32):
+            out += strBitValue((BitValueType.Bound, self.shared_bits[bit]) if bit in self.shared_bits else (BitValueType.Unbound, None))
+        out += "\n"
         for encoding in self.encodings:
-            out += f"- {str(encoding)} {encoding.instruction_set} ({encoding.instruction.name})[{encoding.instruction.fileName}]\n"
+            out += f"- {str(encoding)} [{encoding.instruction.name}]({encoding.instruction.fileName})\n"
         return(out)
 
     def append(self, encoding):
@@ -99,7 +93,7 @@ class EncodingsSet():
        return(self.splitMany(self.findDifferentBoundValue()))
 
 def findCommonBitsAndSplitRecursively(encoding_set, depth):
-    if depth > 6:  # prevents infinite loops given aliases are indistinguishable
+    if depth > 7:  # prevents infinite loops as some instructions appear to be indistinguishable
         return {encoding_set}
     encoding_subsets = encoding_set.splitOnCommonBoundBits()
     encoding_subsubsets = set()
