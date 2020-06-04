@@ -96,7 +96,6 @@ class Encoding(XmlDecoder):
         self.bitSequences = [BitSequence(boxNode, isT16) for boxNode in regDiagram.getElementsByTagName("box")]
         self.total_bit_sequence_length = sum([seq.width for seq in self.bitSequences])
 
-    # NOTE: doesn't support inverted sequences
     def getSequenceByBitIndex(self, index):
         index_of_remainder = index
         for bitSequence in self.bitSequences:
@@ -105,8 +104,12 @@ class Encoding(XmlDecoder):
             index_of_remainder -= bitSequence.width
         raise ValueError("index (" + index + ") > length of instruction (" + self.total_bit_sequence_length)
 
+    # NOTE: doesn't support inverted sequences
+    #   because only alias have inverted bit sequences and the decoder doesn't care about aliases
     def getBit(self, index):
         sequence = self.getSequenceByBitIndex(index)
+        if sequence.inverted:
+            raise ValueError("getBit does not support inverted bit sequences")
         return(sequence.constants[index - (31 - sequence.high_bit)])
 
     def getBitRange(self, lower, upper):
