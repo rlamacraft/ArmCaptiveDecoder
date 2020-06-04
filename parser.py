@@ -115,6 +115,14 @@ class Encoding(XmlDecoder):
     def getBitRange(self, lower, upper):
         return([self.getBit(i) for i in range(lower, upper)])
 
+    def unbound_count(self):
+        count = 0
+        for i in range(0,32):
+            (bitType, _) = self.getBit(i)
+            if bitType == BitValueType.Unbound:
+                count += 1
+        return(count)
+
 class Instruction(XmlDecoder):
 
     def __init__(self, fileName, xmlNode):

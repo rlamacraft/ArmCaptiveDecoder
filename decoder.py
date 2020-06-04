@@ -20,7 +20,9 @@ class EncodingsSet():
     def __str__(self):
         out = f"{len(self.encodings)} instructions share the bits: "
         for bit in range(0,32):
-            out += strBitValue((BitValueType.Bound, self.shared_bits[bit]) if bit in self.shared_bits else (BitValueType.Unbound, None))
+            out += strBitValue((BitValueType.Bound, self.shared_bits[bit])
+                               if bit in self.shared_bits
+                               else (BitValueType.Unbound, None))
         out += "\n"
         for encoding in self.encodings:
             out += f"- {str(encoding)} [{encoding.instruction.name}]({encoding.instruction.fileName})\n"
@@ -83,20 +85,29 @@ class EncodingsSet():
         return(self.splitMany(self.findOtherCommonlyBoundBits()))
 
     def findDifferentBoundValue(self):
-       other_bits = set(range(32)) - set(self.shared_bits.keys())
-       different = set()
-       for position in other_bits:
-           values = set()
-           for encoding in self.encodings:
-               (bitValueType, bitValue) = encoding.getBit(position)
-               if bitValueType != BitValueType.Unbound:
-                   values |= {bitValue}
-           if values == {Bit.Zero, Bit.One}:
+        other_bits = set(range(32)) - set(self.shared_bits.keys())
+        different = set()
+        for position in other_bits:
+            values = set()
+            for encoding in self.encodings:
+                (bitValueType, bitValue) = encoding.getBit(position)
+                if bitValueType != BitValueType.Unbound:
+                    values |= {bitValue}
+            if values == {Bit.Zero, Bit.One}:
                 different |= {position}
-       return(different)
+        return(different)
 
     def splitOnDifferentBoundValue(self):
-       return(self.splitMany(self.findDifferentBoundValue()))
+        return(self.splitMany(self.findDifferentBoundValue()))
+
+    def encodingsOrderedByIncreasingUnbound(self):
+        unbound_count = dict([(i,set()) for i in range(0,32)])
+        for enc in self.encodings:
+            unbound_count[enc.unbound_count()] |= {enc}
+        ret = []
+        for i in range(0,32):
+            ret += unbound_count[i]
+        return(ret)
 
 def findCommonBitsAndSplitRecursively(encoding_set):
     encoding_subsets = encoding_set.splitOnCommonBoundBits()

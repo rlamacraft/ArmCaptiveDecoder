@@ -32,7 +32,6 @@ class TestEncodingsSet(unittest.TestCase):
         else:
             self.fail("Shared_bits not validated")
 
-
     def test_split(self):
         encoding_zero = Encoding(parseSingleNode(TestEncoding.xml()).childNodes[0], None)
         encoding_one = Encoding(parseSingleNode(TestEncoding.xml().replace('0','1',1)).childNodes[0], None)
@@ -43,6 +42,12 @@ class TestEncodingsSet(unittest.TestCase):
            self.assertEqual(len(enc_set.encodings), 1)
            encoding = list(enc_set.encodings)[0]
            self.assertEqual(encoding.getBit(0), (BitValueType.Bound, shared_bits[0]))
+
+    def test_encodingsOrderedByIncreasingUnbound(self):
+        encoding_zero = Encoding(parseSingleNode(TestEncoding.xml()).childNodes[0], None)
+        encoding_one = Encoding(parseSingleNode(TestEncoding.xml().replace('0','x',1)).childNodes[0], None)
+        encoding_set = EncodingsSet(set([encoding_zero, encoding_one]), {})
+        self.assertEqual(encoding_set.encodingsOrderedByIncreasingUnbound(), [encoding_zero, encoding_one])
 
 def main():
     unittest.main()
