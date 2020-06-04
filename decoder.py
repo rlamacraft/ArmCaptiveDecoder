@@ -104,9 +104,10 @@ def findCommonBitsAndSplitRecursively(encoding_set, depth):
             encoding_subsubsets |= {subset}
     return(encoding_subsubsets)
 
-instructions = parseAllFiles()
-print("Parsed", len(instructions), "instructions.")
+if __name__ == "__main__":
+    instructions = parseAllFiles()
+    print("Parsed", len(instructions), "instructions.")
 
-encodings = list(itertools.chain(*[inst.encodings for inst in instructions]))
-encoding_set = EncodingsSet(set(encodings), {})
-[print(str(encoding_set)) for encoding_set in list(findCommonBitsAndSplitRecursively(encoding_set, 0)) if len(encoding_set) > 0]
+    # encodings = list(itertools.chain(*[inst.encodings for inst in instructions]))
+    # encoding_set = EncodingsSet(set(encodings), {})
+    # [print(str(encoding_set)) for encoding_set in list(findCommonBitsAndSplitRecursively(encoding_set, 0)) if len(encoding_set) > 0]
