@@ -7,9 +7,12 @@ from parser import *
 class EncodingsSet():
 
     def __init__(self, encodings, shared_bits):
+        for encoding in encodings:
+            for position, bit in shared_bits.items():
+                (_, bitValue) = encoding.getBit(position)
+                assert bitValue == bit
         self.encodings = encodings
         self.shared_bits = shared_bits
-        # NOTE: the invariant that all encodings do share such bits is not asserted
 
     def __len__(self):
         return(len(self.encodings))
@@ -24,6 +27,9 @@ class EncodingsSet():
         return(out)
 
     def append(self, encoding):
+        for position, bit in self.shared_bits.items():
+            (_, bitValue) = encoding.getBit(position)
+            assert bitValue == bit
         self.encodings |= {encoding}
 
     # returns two new encoding sets
@@ -85,7 +91,7 @@ class EncodingsSet():
                (bitValueType, bitValue) = encoding.getBit(position)
                if bitValueType != BitValueType.Unbound:
                    values |= {bitValue}
-           if len(values) == 2:
+           if values == {Bit.Zero, Bit.One}:
                 different |= {position}
        return(different)
 
@@ -115,4 +121,4 @@ if __name__ == "__main__":
 
     encodings = list(itertools.chain(*[inst.encodings for inst in instructions]))
     encoding_set = EncodingsSet(set(encodings), {})
-    [print(str(encoding_set)) for encoding_set in list(findCommonBitsAndSplitRecursively(encoding_set))]
+    [print(str(encoding_set)) for encoding_set in findCommonBitsAndSplitRecursively(encoding_set)]
