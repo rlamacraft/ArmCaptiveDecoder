@@ -21,15 +21,16 @@ class TestBitValue(unittest.TestCase):
         self.assertEqual(f('1'), '1')
 
 def parseSingleNode(xmlString):
-    return(parseString(xmlString).childNodes[0])
+    # return(parseString(xmlString).childNodes[0])
+    return(parseString(xmlString))
 
 class TestBitSequence(unittest.TestCase):
 
     def unbound(self):
-        return(BitSequence(parseSingleNode('<box hibit="31" name="sf"><c></c></box>'), False))
+        return(BitSequence(parseSingleNode('<box hibit="31" name="sf"><c></c></box>').childNodes[0], False))
 
     def bound(self):
-        return(BitSequence(parseSingleNode('<box hibit="31" name="sf" width="2"><c>0</c><c>1</c></box>'), False))
+        return(BitSequence(parseSingleNode('<box hibit="31" name="sf" width="2"><c>0</c><c>1</c></box>').childNodes[0], False))
 
     def test_parse(self):
         unbound = self.unbound()
@@ -53,9 +54,9 @@ class TestBitSequence(unittest.TestCase):
 
     def test_str(self):
         unbound = self.unbound()
-        self.assertEquals(str(unbound), "x")
+        self.assertEqual(str(unbound), "x")
         bound = self.bound()
-        self.assertEquals(str(bound), "01")
+        self.assertEqual(str(bound), "01")
 
 class TestEncoding(unittest.TestCase):
 
@@ -103,7 +104,7 @@ class TestEncoding(unittest.TestCase):
         """)
 
     def test_parse(self):
-        encoding = Encoding(parseSingleNode(TestEncoding.xml()), None)
+        encoding = Encoding(parseSingleNode(TestEncoding.xml()).childNodes[0], None)
         self.assertEqual(encoding.instruction_set, "A64")
 
         zero = (BitValueType.Bound, Bit.Zero)
