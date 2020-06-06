@@ -21,7 +21,6 @@ class TestBitValue(unittest.TestCase):
         self.assertEqual(f('1'), '1')
 
 def parseSingleNode(xmlString):
-    # return(parseString(xmlString).childNodes[0])
     return(parseString(xmlString))
 
 class TestBitSequence(unittest.TestCase):
