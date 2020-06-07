@@ -60,47 +60,24 @@ class TestBitSequence(unittest.TestCase):
 class TestEncoding(unittest.TestCase):
 
     @staticmethod
+    def xml_specified(specified_bit_dict):
+        out = ""
+        out += '<iclass isa="A64">\n'
+        out += '<regdiagram form="32">\n'
+        out += '<box hibit="31" name="sf" width="32">'
+        for i in range(0,32):
+            if i in specified_bit_dict:
+                out += '<c>' + specified_bit_dict[i] + '</c>'
+            else:
+                out += '<c>x</c>'
+        out += '</box>'
+        out += '</regdiagram>'
+        out += '</iclass>'
+        return(out)
+
+    @staticmethod
     def xml():
-        return("""
-        <iclass isa="A64">
-          <regdiagram form="32">
-            <box hibit="31" name="sf" width="32">
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-              <c>0</c>
-            </box>
-          </regdiagram>
-        </iclass>
-        """)
+        return TestEncoding.xml_specified(dict([(i,'0') for i in range(0,32)]))
 
     def test_parse(self):
         encoding = Encoding(parseSingleNode(TestEncoding.xml()).childNodes[0], None)
