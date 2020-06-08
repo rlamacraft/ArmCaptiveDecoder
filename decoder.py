@@ -24,8 +24,11 @@ class EncodingsSet():
                                if bit in self.shared_bits
                                else (BitValueType.Unbound, None))
         out += "\n"
-        for encoding in self.encodings:
+        for encoding in self.encodingsOrderedByIncreasingUnbound():
             out += f"- {str(encoding)} [{encoding.instruction.name}]({encoding.instruction.fileName})\n"
+            for bit_sequence in encoding.bitSequences:
+                if not bit_sequence.name == "_":
+                    out += f"  - {bit_sequence.name}: [{bit_sequence.high_bit}..{bit_sequence.low_bit}]\n"
         return(out)
 
     def append(self, encoding):
