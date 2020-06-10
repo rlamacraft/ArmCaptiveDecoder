@@ -17,9 +17,7 @@ bool aarch64_decode::decode_a64(uint32_t ir)
  (((ir >> {{pad_left_bit_pos(bit_pos)}}) & 1) == {{bit_str(bit_val)}})
     # endfor
   ) {
-    #  for enc in enc_set.encodings
-    // {{ enc.instruction.name }}
-    #  endfor
+    {{ enc_set | string | prepend_lines("// ") | indent}}
   }
   # endfor
   return false;
