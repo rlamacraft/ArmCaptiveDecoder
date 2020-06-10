@@ -1,10 +1,23 @@
+# macro bitStr(bit)
+{{"%s" % bit.value}}
+#- endmacro
+
+
 bool aarch64_decode::decode_a64(uint32_t ir)
 {
-    // Here are the names of some instructions:
-  # for enc_set in sets 
-  #     for enc in enc_set.encodings 
+  # for enc_set in sets
+  if(
+    #- for bit_position, bit_value in enc_set.shared_bits.items():
+      #- if loop.index0 != 0
+   &&
+      #- endif
+ if[{{bit_position}}] == {{bitStr(bit_value)}}
+    # endfor
+  ) {
+  #  for enc in enc_set.encodings 
     // {{ enc.instruction.name }}
-  #     endfor
+  #  endfor
+  }
   # endfor
-    return false;
+  return false;
 }
