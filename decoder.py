@@ -31,6 +31,10 @@ class EncodingsSet():
                     out += f"  - {bit_sequence.name}: [{bit_sequence.high_bit}..{bit_sequence.low_bit}]\n"
         return(out)
 
+    def ordered_shared_bits(self):
+        for bit in sorted(self.shared_bits):
+            yield (bit, self.shared_bits[bit])
+
     def append(self, encoding):
         for position, bit in self.shared_bits.items():
             (_, bitValue) = encoding.getBit(position)

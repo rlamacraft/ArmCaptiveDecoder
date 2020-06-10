@@ -1,22 +1,25 @@
-# macro bitStr(bit)
+# macro bit_str(bit)
 {{"%s" % bit.value}}
 #- endmacro
 
+# macro pad_left_bit_pos(bit_pos)
+{{"%2s" | format(bit_pos)}}
+#- endmacro
 
 bool aarch64_decode::decode_a64(uint32_t ir)
 {
   # for enc_set in sets
   if(
-    #- for bit_position, bit_value in enc_set.shared_bits.items():
+    #- for bit_pos, bit_val in enc_set.ordered_shared_bits():
       #- if loop.index0 != 0
    &&
       #- endif
- if[{{bit_position}}] == {{bitStr(bit_value)}}
+ (((ir >> {{pad_left_bit_pos(bit_pos)}}) & 1) == {{bit_str(bit_val)}})
     # endfor
   ) {
-  #  for enc in enc_set.encodings 
+    #  for enc in enc_set.encodings
     // {{ enc.instruction.name }}
-  #  endfor
+    #  endfor
   }
   # endfor
   return false;
