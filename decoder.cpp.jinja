@@ -10,14 +10,30 @@ bool aarch64_decode::decode_a64(uint32_t ir)
 {
   # for enc_set in sets
   if(
-    #- for bit_pos, bit_val in enc_set.ordered_shared_bits():
+    #- for bit_pos, bit_val in enc_set.ordered_shared_bits()
       #- if loop.index0 != 0
    &&
       #- endif
  (((ir >> {{pad_left_bit_pos(bit_pos)}}) & 1) == {{bit_str(bit_val)}})
     # endfor
   ) {
-    {{ enc_set | string | prepend_lines("// ") | indent}}
+  # if not enc_set.isSingleton()
+    # for enc in enc_set.encodingsOrderedByIncreasingUnbound()
+    if(
+      #- for bit_pos, bit_val in enc.getBitMany(enc_set.findUncommonlyBoundBits()).items()
+      #- if loop.index0 != 0
+     &&
+      #- endif
+ (((ir >> {{pad_left_bit_pos(bit_pos)}}) & 1) == {{bit_str(bit_val)}})
+      # endfor
+    ) {
+      // {{ enc.instruction.name }}
+    }
+    # endfor
+  # else
+    # set enc = enc_set.encodings.pop()
+     // {{ enc.instruction.name }}
+  # endif
   }
   # endfor
   return false;

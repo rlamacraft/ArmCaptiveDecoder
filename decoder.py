@@ -17,6 +17,9 @@ class EncodingsSet():
     def __len__(self):
         return(len(self.encodings))
 
+    def isSingleton(self):
+        return(len(self) == 1)
+
     def __str__(self):
         out = f"{len(self.encodings)} instructions share the bits: "
         for bit in range(0,32):

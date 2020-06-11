@@ -115,6 +115,9 @@ class Encoding(XmlDecoder):
     def getBitRange(self, lower, upper):
         return([self.getBit(i) for i in range(lower, upper)])
 
+    def getBitMany(self, set_of_positions):
+        return(dict([(i,self.getBit(i)) for i in set_of_positions]))
+
     def unbound_count(self):
         count = 0
         for i in range(0,32):
