@@ -77,6 +77,16 @@ class TestEncodingsSet(unittest.TestCase):
         empty_encodings_set = EncodingsSet(set(), dict())
         self.assertEqual(empty_encodings_set.findOtherCommonlyBoundBits(), set(range(0,32)))
 
+    def test_findUncommonlyBoundBits(self):
+        zeros_and_unbound = Encoding(parseSingleNode(TestEncoding.xml_specified({0:'0'})).childNodes[0], None)
+        one_and_unbound = Encoding(parseSingleNode(TestEncoding.xml_specified({0:'1'})).childNodes[0], None)
+        encodings_set = EncodingsSet(set([zeros_and_unbound, one_and_unbound]), dict())
+        self.assertEqual(encodings_set.findUncommonlyBoundBits(), {0})
+
+        unbound_except_for_pos_1 = Encoding(parseSingleNode(TestEncoding.xml_specified({1:'1'})).childNodes[0], None)
+        encodings_set = EncodingsSet(set([zeros_and_unbound, unbound_except_for_pos_1]), dict())
+        self.assertEqual(encodings_set.findUncommonlyBoundBits(), {0, 1})
+
     def test_splitOnCommonBoundBits(self):
         zeros_and_unbound = Encoding(parseSingleNode(TestEncoding.xml_specified({0:'0'})).childNodes[0], None)
         one_and_unbound = Encoding(parseSingleNode(TestEncoding.xml_specified({0:'1'})).childNodes[0], None)

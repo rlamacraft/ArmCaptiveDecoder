@@ -88,6 +88,16 @@ class EncodingsSet():
                     break
         return(other_bits - unbound_in_an_instruction)
 
+    def findUncommonlyBoundBits(self):
+        """These are the bit positions where at least one of the encodings has a bound bit"""
+        all_bound = set()
+        for enc in self.encodings:
+            for i in range(0,32):
+                (bitType, _) = enc.getBit(i)
+                if bitType == BitValueType.Bound:
+                    all_bound |= {i}
+        return(all_bound - set(self.shared_bits.keys()))
+
     def splitOnCommonBoundBits(self):
         return(self.splitMany(self.findOtherCommonlyBoundBits()))
 
