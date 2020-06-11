@@ -11,4 +11,8 @@ def generate_code(encodings_sets):
     )
     env.filters['prepend_lines'] = prepend_lines
     template = env.get_template('decoder.cpp.jinja')
-    return(template.render(sets=encodings_sets))
+    return(template.render(
+        sets=encodings_sets,
+        drop_unbound_from_pos_map=lambda pos_map: dict([(x,(y,z)) for x,(y,z) in pos_map.items() if z is not None]),
+        list=list
+    ))

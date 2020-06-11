@@ -6,6 +6,11 @@
 {{"%2s" | format(bit_pos)}}
 #- endmacro
 
+# macro encoding(enc)
+// {{ enc.instruction.name }}
+return True;
+#- endmacro
+
 bool aarch64_decode::decode_a64(uint32_t ir)
 {
   # for enc_set in sets
@@ -19,20 +24,25 @@ bool aarch64_decode::decode_a64(uint32_t ir)
   ) {
   # if not enc_set.isSingleton()
     # for enc in enc_set.encodingsOrderedByIncreasingUnbound()
+    # set bound_bits = drop_unbound_from_pos_map(enc.getBitMany(enc_set.findUncommonlyBoundBits())).items()
+    # if list(bound_bits) != []
     if(
-      #- for bit_pos, bit_val in enc.getBitMany(enc_set.findUncommonlyBoundBits()).items()
+      #- for bit_pos, (_, bit_val) in bound_bits
       #- if loop.index0 != 0
      &&
       #- endif
  (((ir >> {{pad_left_bit_pos(bit_pos)}}) & 1) == {{bit_str(bit_val)}})
       # endfor
     ) {
-      // {{ enc.instruction.name }}
+      {{ encoding(enc) | indent(6) }}
     }
+    # else
+    {{ encoding(enc) | indent }}
+    # endif
     # endfor
   # else
     # set enc = enc_set.encodings.pop()
-     // {{ enc.instruction.name }}
+    {{ encoding(enc) | indent }}
   # endif
   }
   # endfor
