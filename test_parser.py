@@ -87,6 +87,17 @@ class TestEncoding(unittest.TestCase):
         self.assertEqual(encoding.getBit(0), zero)
         self.assertEqual(encoding.getBitRange(0,3), [zero] * 3)
 
+    def test_named_bit_sequences(self):
+        encoding = Encoding(parseSingleNode(TestEncoding.xml()).childNodes[0], None)
+        bit_sequences = encoding.named_bit_sequences()
+        self.assertEqual(len(bit_sequences), 1)
+        self.assertEqual(bit_sequences[0].name, "sf")
+
+        modified_xml = re.sub(r'name="sf" ',"",TestEncoding.xml())
+        encoding = Encoding(parseSingleNode(modified_xml).childNodes[0], None)
+        bit_sequences = encoding.named_bit_sequences()
+        self.assertEqual(len(bit_sequences), 0)
+
 class TestInstruction(unittest.TestCase):
 
     @staticmethod

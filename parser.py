@@ -126,6 +126,9 @@ class Encoding(XmlDecoder):
                 count += 1
         return(count)
 
+    def named_bit_sequences(self):
+        return([bs for bs in self.bitSequences if bs.name != "_"])
+
 class Instruction(XmlDecoder):
 
     def __init__(self, fileName, xmlNode):
