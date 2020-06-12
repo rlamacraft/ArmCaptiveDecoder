@@ -7,7 +7,17 @@
 #- endmacro
 
 # macro encoding(enc)
-// {{ enc.instruction.name }}
+// {{ enc.instruction.name }} [{{enc.instruction.fileName}}]
+opcode = aarch64_a64_<???>;
+length = 4;
+# for bs in enc.named_bit_sequences()
+  # if bs.width == 1
+((aarch64_decode_a64_<???>&)*this).{{bs.name}} = BITSEL(ir, {{bs.high_bit}});
+  # else
+((aarch64_decode_a64_<???>&)*this).{{bs.name}} = UNSIGNED_BITS(ir, {{bs.high_bit}},{{bs.low_bit}});
+  # endif
+# endfor
+((aarch64_decode_a64_<???>&)*this).decode_behaviour();
 return True;
 #- endmacro
 
