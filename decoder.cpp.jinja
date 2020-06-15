@@ -8,7 +8,7 @@
 
 # macro encoding(enc)
 // {{ enc.instruction.name }} [{{enc.instruction.fileName}}]
-opcode = aarch64_a64_<???>;
+opcode = aarch64_a64_{{ enc.instruction.mnemonic | lower }};
 length = 4;
 # for bs in enc.named_bit_sequences()
   # if bs.width == 1

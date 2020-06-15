@@ -139,6 +139,16 @@ class TestInstruction(unittest.TestCase):
           </classes>
         </instructionsection>""")
 
+    def test_parse_docvars(self):
+        docvars = Instruction.parse_docvars(parseString("""
+        <inst>
+        <docvars>
+          <docvar key="foo" value="bar" />
+        </docvars>
+        </inst>
+        """))
+        self.assertEqual(docvars['foo'], 'bar')
+
     def test_parse(self):
         # No aliases
         instruction = Instruction("example.xml",

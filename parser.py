@@ -135,9 +135,21 @@ class Instruction(XmlDecoder):
         self.fileName = fileName
         self.parse(xmlNode)
 
+    @staticmethod
+    def parse_docvars(instNode):
+        docvars_node = instNode.getElementsByTagName("docvars")[0]
+        docvars = dict()
+        for docvar_node in docvars_node.getElementsByTagName("docvar"):
+            k = docvar_node.getAttribute("key")
+            v = docvar_node.getAttribute("value")
+            docvars[k] = v
+        return(docvars)
+
     def parse(self, xmlNode):
         instNode = xmlNode.getElementsByTagName("instructionsection")[0]
         self.name = instNode.getElementsByTagName("heading")[0].childNodes[0].data
+        docvars = Instruction.parse_docvars(instNode)
+        self.mnemonic = docvars["mnemonic"] if "mnemonic" in docvars else instNode.getAttribute('id')
         self.is_alias = getAttr(instNode, "type", "instruction") == "alias"
         self.encodings = [Encoding(iclass, self) for iclass in instNode.getElementsByTagName("iclass")]
         if self.is_alias:
@@ -155,8 +167,17 @@ class Instruction(XmlDecoder):
 
 def parseInstruction(xmlDir, xmlFile):
     path = xmlDir + xmlFile
-    xml_data = xml.dom.minidom.parse(path)
-    return(Instruction(xmlFile, xml_data))
+    try:
+        xml_data = xml.dom.minidom.parse(path)
+    except xml.parsers.expat.ExpatError:
+        # print("Failed to parse", xmlFile)
+        raise ValueError("Failed to parse", xmlFile)
+    try:
+        inst = Instruction(xmlFile, xml_data)
+        return(inst)
+    except:
+        # print("Missing data in", xmlFile)
+        raise ValueError("Missing data in", xmlFile)
 
 def parseAllFiles():
     xmlDir = "spec/ISA_v82A_A64_xml_00bet3.1/"
