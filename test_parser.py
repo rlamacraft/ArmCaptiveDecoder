@@ -104,6 +104,7 @@ class TestInstruction(unittest.TestCase):
     def instruction_without_alias_xml():
         return("""
         <instructionsection type="instruction">
+          <docvars></docvars>
           <heading>Example</heading>
           <alias_list howmany="0">
           </alias_list>
@@ -117,6 +118,7 @@ class TestInstruction(unittest.TestCase):
     def instruction_with_alias_xml():
         return("""
         <instructionsection type="instruction">
+          <docvars></docvars>
           <heading>Example</heading>
           <alias_list howmany="1">
             <aliasref aliasfile="alias.xml"></aliasref>
@@ -131,6 +133,7 @@ class TestInstruction(unittest.TestCase):
     def alias_xml():
         return("""
         <instructionsection type="alias">
+          <docvars></docvars>
           <heading>Alias</heading>
           <aliasto refiform="example.xml"></aliasto>
           <classes>""" +

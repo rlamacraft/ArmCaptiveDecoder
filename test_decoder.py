@@ -20,7 +20,7 @@ class TestEncodingsSet(unittest.TestCase):
         return(Encoding(parseSingleNode(TestEncoding.xml_specified(dict([(i,'1' if i < 2 else '0') for i in range(0,32)]))).childNodes[0], None))
 
     @staticmethod
-    def zero_and_one(shared_bits=dict()):
+    def zero_and_one_set(shared_bits=dict()):
         return(EncodingsSet(set([
             TestEncodingsSet.zero_encoding(),
             TestEncodingsSet.one_encoding()
@@ -28,13 +28,17 @@ class TestEncodingsSet(unittest.TestCase):
 
     def test_init(self):
         try:
-            TestEncodingsSet.zero_and_one({0: Bit.Zero})
+            TestEncodingsSet.zero_and_one_set({0: Bit.Zero})
         except AssertionError:
             pass
         except:
             self.fail("Incorrect error thrown")
         else:
             self.fail("Shared_bits not validated")
+
+    def test_is_singleton(self):
+       self.assertTrue(EncodingsSet(set([TestEncodingsSet.zero_encoding()]), dict()).is_singleton())
+       self.assertFalse(TestEncodingsSet.zero_and_one_set().is_singleton())
 
     def test_append(self):
         encoding_set = EncodingsSet(set(), {0: Bit.Zero})
@@ -52,7 +56,7 @@ class TestEncodingsSet(unittest.TestCase):
             self.fail("Shared_bits not validated")
 
     def test_split(self):
-        sets = TestEncodingsSet.zero_and_one().split(0)
+        sets = TestEncodingsSet.zero_and_one_set().split(0)
         for enc_set in sets:
            shared_bits = enc_set.shared_bits
            self.assertEqual(len(enc_set.encodings), 1)
@@ -60,18 +64,18 @@ class TestEncodingsSet(unittest.TestCase):
            self.assertEqual(encoding.getBit(0), (BitValueType.Bound, shared_bits[0]))
 
     def test_splitMany(self):
-        encoding_set = TestEncodingsSet.zero_and_one()
+        encoding_set = TestEncodingsSet.zero_and_one_set()
         encoding_set.append(TestEncodingsSet.two_encoding())
 
         sets = [set for set in encoding_set.splitMany([0,1]) if len(set) > 0]
         self.assertEqual(len(sets), 3)
 
-        encoding_set = TestEncodingsSet.zero_and_one()
+        encoding_set = TestEncodingsSet.zero_and_one_set()
         sets = [set for set in encoding_set.splitMany([0,1]) if len(set) > 0]
         self.assertEqual(len(sets), 2)
 
     def test_findOtherCommonlyBoundBits(self):
-        encodings_set = TestEncodingsSet.zero_and_one({1: Bit.Zero})
+        encodings_set = TestEncodingsSet.zero_and_one_set({1: Bit.Zero})
         self.assertEqual(encodings_set.findOtherCommonlyBoundBits(), set(range(2,32)) | set([0]))
 
         empty_encodings_set = EncodingsSet(set(), dict())

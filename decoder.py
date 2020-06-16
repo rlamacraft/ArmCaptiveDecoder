@@ -17,7 +17,7 @@ class EncodingsSet():
     def __len__(self):
         return(len(self.encodings))
 
-    def isSingleton(self):
+    def is_singleton(self):
         return(len(self) == 1)
 
     def __str__(self):

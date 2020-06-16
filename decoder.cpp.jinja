@@ -32,7 +32,7 @@ bool aarch64_decode::decode_a64(uint32_t ir)
  (((ir >> {{pad_left_bit_pos(bit_pos)}}) & 1) == {{bit_str(bit_val)}})
     # endfor
   ) {
-  # if not enc_set.isSingleton()
+  # if not enc_set.is_singleton()
     # for enc in enc_set.encodingsOrderedByIncreasingUnbound()
     # set bound_bits = drop_unbound_from_pos_map(enc.getBitMany(enc_set.findUncommonlyBoundBits())).items()
     # if list(bound_bits) != []
