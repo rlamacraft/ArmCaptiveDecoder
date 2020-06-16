@@ -170,13 +170,11 @@ def parseInstruction(xmlDir, xmlFile):
     try:
         xml_data = xml.dom.minidom.parse(path)
     except xml.parsers.expat.ExpatError:
-        # print("Failed to parse", xmlFile)
         raise ValueError("Failed to parse", xmlFile)
     try:
         inst = Instruction(xmlFile, xml_data)
         return(inst)
     except:
-        # print("Missing data in", xmlFile)
         raise ValueError("Missing data in", xmlFile)
 
 def parseAllFiles():

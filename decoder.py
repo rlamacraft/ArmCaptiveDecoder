@@ -104,22 +104,6 @@ class EncodingsSet():
     def splitOnCommonBoundBits(self):
         return(self.splitMany(self.findOtherCommonlyBoundBits()))
 
-    def findDifferentBoundValue(self):
-        other_bits = set(range(32)) - set(self.shared_bits.keys())
-        different = set()
-        for position in other_bits:
-            values = set()
-            for encoding in self.encodings:
-                (bitValueType, bitValue) = encoding.getBit(position)
-                if bitValueType != BitValueType.Unbound:
-                    values |= {bitValue}
-            if values == {Bit.Zero, Bit.One}:
-                different |= {position}
-        return(different)
-
-    def splitOnDifferentBoundValue(self):
-        return(self.splitMany(self.findDifferentBoundValue()))
-
     def encodingsOrderedByIncreasingUnbound(self):
         unbound_count = dict([(i,set()) for i in range(0,32)])
         for enc in self.encodings:
