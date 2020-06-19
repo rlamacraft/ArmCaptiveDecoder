@@ -10,16 +10,17 @@ def environment():
         line_statement_prefix='#'
     ))
 
-def generate_code(encodings_sets):
-    generate_decoder_h(encodings_sets)
+def generate_code(encodings_sets, instructions):
+    generate_decoder_h(instructions)
     generate_decoder_cpp(encodings_sets)
 
-def generate_decoder_h(encodings_sets):
+def generate_decoder_h(instructions):
     env = environment()
+    env.line_statement_prefix='£'
     template = env.get_template('templates/decoder.h.jinja')
     with open('out/decoder.h', 'w') as file:
         file.write(template.render(
-            sets=encodings_sets
+            instructions=instructions
         ))
     print("Written to out/decoder.h")
 

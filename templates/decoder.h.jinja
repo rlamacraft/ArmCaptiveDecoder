@@ -1,1 +1,58 @@
-foo
+ once
+#include <decode.h>
+namespace captive
+{
+  namespace arch
+  {
+    namespace aarch64
+    {
+      class aarch64_decode : public Decode
+      {
+        public:
+          enum aarch64_isa_modes
+          {
+            aarch64_a64 = 0,
+          };
+
+          aarch64_isa_modes isa_mode;
+          aarch64_opcodes opcode;
+          uint32_t ir;
+          bool decode(uint32_t isa_mode, uint64_t insn_pc, const uint8_t *ptr) override;
+          JumpInfo get_jump_info() override;
+        private:
+          bool decode_a64(uint32_t ir);
+      };
+
+      class aarch64_decode_a64 : public aarch64_decode
+      {
+        public:
+          uint32_t immu32;
+          int32_t imms32;
+          uint64_t immu64;
+          int64_t imms64;
+          uint8_t shift_amount;
+          int64_t label;
+          uint8_t bit_pos;
+          uint8_t ext_type;
+          uint8_t arrangement;
+          uint8_t width;
+          uint8_t size;
+          uint8_t regcnt;
+          uint8_t elemcnt;
+          uint8_t elemsize;
+          uint8_t ta;
+          uint8_t tb;
+          uint8_t eindex;
+          uint8_t eindex2;
+          uint8_t rmr;
+      };
+
+      £ for inst in instructions|sort(attribute="mnemonic")
+      class aarch64_a64_{{ inst.mnemonic  | lower }} : public aarch64_decode_a64
+      {
+
+      }
+£ endfor
+    }
+  }
+}

@@ -23,4 +23,4 @@ if __name__ == "__main__":
     encodings_sets = set(list(findCommonBitsAndSplitRecursively(encoding_set)))
     # [print(str(es)) for es in encodings_sets]
 
-    generate_code(encodings_sets)
+    generate_code(encodings_sets, instructions)
