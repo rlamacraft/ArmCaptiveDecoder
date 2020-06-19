@@ -92,6 +92,7 @@ class Encoding(XmlDecoder):
     def parse(self, xmlNode):
         regDiagram = xmlNode.getElementsByTagName("regdiagram")[0]
         isT16 = regDiagram.getAttribute("form") == "16"
+        self.id = xmlNode.getAttribute("id")
         self.instruction_set = "T16" if isT16 else xmlNode.getAttribute("isa")
         self.bitSequences = [BitSequence(boxNode, isT16) for boxNode in regDiagram.getElementsByTagName("box")]
         self.total_bit_sequence_length = sum([seq.width for seq in self.bitSequences])

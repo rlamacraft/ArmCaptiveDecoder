@@ -1,4 +1,4 @@
- once
+#pragma once
 #include <decode.h>
 namespace captive
 {
@@ -47,12 +47,14 @@ namespace captive
           uint8_t rmr;
       };
 
-      £ for inst in instructions|sort(attribute="mnemonic")
-      class aarch64_a64_{{ inst.mnemonic  | lower }} : public aarch64_decode_a64
+    £ for inst in instructions|sort(attribute="mnemonic")
+      £ for enc in inst.encodings
+      class aarch64_a64_{{inst.mnemonic|lower}}_{{enc.id}} : public aarch64_decode_a64
       {
-
+        //TODO getter for each of the operands
       }
-£ endfor
+      £ endfor
+    £ endfor
     }
   }
 }
