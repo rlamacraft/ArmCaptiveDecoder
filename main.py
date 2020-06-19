@@ -11,11 +11,16 @@ def pop_many(count, initial_set):
 
 if __name__ == "__main__":
     instructions = parseAllFiles()
-    # print("Parsed", len(instructions), "instructions.")
+    print("Parsed", len(instructions), "instructions.")
 
-    encodings = list(itertools.chain(*[inst.encodings for inst in pop_many(3, instructions)]))
+    # for inst in instructions:
+        # print("aarch64_a64_%s; [%s]" % (inst.mnemonic.lower(), inst.fileName))
+
+    # encodings = list(itertools.chain(*[inst.encodings for inst in pop_many(3, instructions)]))
+    encodings = list(itertools.chain(*[inst.encodings for inst in instructions]))
+    print(len(encodings), "encodings found.")
     encoding_set = EncodingsSet(set(encodings), {})
     encodings_sets = set(list(findCommonBitsAndSplitRecursively(encoding_set)))
     # [print(str(es)) for es in encodings_sets]
 
-    print(generate_code(encodings_sets))
+    generate_code(encodings_sets)

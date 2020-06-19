@@ -36,9 +36,16 @@ class TestEncodingsSet(unittest.TestCase):
         else:
             self.fail("Shared_bits not validated")
 
+    def test_len(self):
+        self.assertEqual(len(TestEncodingsSet.zero_and_one_set()), 2)
+
     def test_is_singleton(self):
        self.assertTrue(EncodingsSet(set([TestEncodingsSet.zero_encoding()]), dict()).is_singleton())
        self.assertFalse(TestEncodingsSet.zero_and_one_set().is_singleton())
+
+    def test_ordered_shared_bits(self):
+        self.assertEqual(list(EncodingsSet(set(), dict([(10, Bit.Zero), (5, Bit.One)])).ordered_shared_bits()), [(5, Bit.One), (10, Bit.Zero)])
+        self.assertEqual(list(EncodingsSet(set(), dict()).ordered_shared_bits()), [])
 
     def test_append(self):
         encoding_set = EncodingsSet(set(), {0: Bit.Zero})
