@@ -1,60 +1,67 @@
-# macro bit_str(bit)
+£ import 'templates/common.jinja' as common
+
+£ macro bit_str(bit)
 {{"%s" % bit.value}}
-#- endmacro
+£- endmacro
 
-# macro pad_left_bit_pos(bit_pos)
+£ macro pad_left_bit_pos(bit_pos)
 {{"%2s" | format(bit_pos)}}
-#- endmacro
+£- endmacro
 
-# macro encoding(enc)
+£ macro encoding(enc)
 // {{ enc.instruction.name }} [{{enc.instruction.fileName}}]
-opcode = aarch64_a64_{{ enc.instruction.mnemonic | lower }};
-length = 4;
-# for bs in enc.named_bit_sequences()
-  # if bs.width == 1
-((aarch64_decode_a64_<???>&)*this).{{bs.name}} = BITSEL(ir, {{bs.high_bit}});
-  # else
-((aarch64_decode_a64_<???>&)*this).{{bs.name}} = UNSIGNED_BITS(ir, {{bs.high_bit}},{{bs.low_bit}});
-  # endif
-# endfor
-((aarch64_decode_a64_<???>&)*this).decode_behaviour();
-return True;
-#- endmacro
+instructionClass = {{common.instruction_class(enc)}};
+£- endmacro
 
 bool aarch64_decode::decode_a64(uint32_t ir)
 {
-  # for enc_set in sets
+  £ for enc_set in sets
   if(
-    #- for bit_pos, bit_val in enc_set.ordered_shared_bits()
-      #- if loop.index0 != 0
+    £- for bit_pos, bit_val in enc_set.ordered_shared_bits()
+      £- if loop.index0 != 0
    &&
-      #- endif
+      £- endif
  (((ir >> {{pad_left_bit_pos(bit_pos)}}) & 1) == {{bit_str(bit_val)}})
-    # endfor
+    £ endfor
   ) {
-  # if not enc_set.is_singleton()
-    # for enc in enc_set.encodingsOrderedByIncreasingUnbound()
-    # set bound_bits = drop_unbound_from_pos_map(enc.getBitMany(enc_set.findUncommonlyBoundBits())).items()
-    # if list(bound_bits) != []
+  £ if not enc_set.is_singleton()
+    £ for enc in enc_set.encodingsOrderedByIncreasingUnbound()
+    £ set bound_bits = drop_unbound_from_pos_map(enc.getBitMany(enc_set.findUncommonlyBoundBits())).items()
+    £ if list(bound_bits) != []
     if(
-      #- for bit_pos, (_, bit_val) in bound_bits
-      #- if loop.index0 != 0
+      £- for bit_pos, (_, bit_val) in bound_bits
+      £- if loop.index0 != 0
      &&
-      #- endif
+      £- endif
  (((ir >> {{pad_left_bit_pos(bit_pos)}}) & 1) == {{bit_str(bit_val)}})
-      # endfor
+      £ endfor
     ) {
       {{ encoding(enc) | indent(6) }}
     }
-    # else
+    £ else
     {{ encoding(enc) | indent }}
-    # endif
-    # endfor
-  # else
-    # set enc = enc_set.encodings.pop()
+    £ endif
+    £ endfor
+  £ else
+    £ set enc = enc_set.encodings.pop()
     {{ encoding(enc) | indent }}
-  # endif
+  £ endif
   }
-  # endfor
+  £ endfor
   return false;
 }
+
+£ for enc_set in sets
+  £ for enc in enc_set.encodings
+    £ for bs in enc.named_bit_sequences()
+uint8_t aarch64_a64_{{enc.instruction.mnemonic|lower}}_{{enc.id}}::get_{{bs.name}}
+{
+      £ if bs.width == 1
+  return BITSEL(ir, {{bs.high_bit}});
+      £ else
+  return UNSIGNED_BITS(ir, {{bs.high_bit}}, {{bs.low_bit}});
+      £ endif
+}
+    £ endfor
+  £ endfor
+£ endfor

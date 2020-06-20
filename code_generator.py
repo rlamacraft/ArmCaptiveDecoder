@@ -7,7 +7,7 @@ def prepend_lines(multiline_string, prefix):
 def environment():
     return(Environment(
         loader=FileSystemLoader('.'),
-        line_statement_prefix='#'
+        line_statement_prefix='£'
     ))
 
 def generate_code(encodings_sets, instructions):
@@ -16,7 +16,6 @@ def generate_code(encodings_sets, instructions):
 
 def generate_decoder_h(instructions):
     env = environment()
-    env.line_statement_prefix='£'
     template = env.get_template('templates/decoder.h.jinja')
     with open('out/decoder.h', 'w') as file:
         file.write(template.render(

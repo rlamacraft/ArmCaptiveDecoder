@@ -1,3 +1,5 @@
+£ import 'templates/common.jinja' as common
+
 #pragma once
 #include <decode.h>
 namespace captive
@@ -12,6 +14,15 @@ namespace captive
           enum aarch64_isa_modes
           {
             aarch64_a64 = 0,
+          };
+          enum aarch64_instruction_classes
+          {
+£ for inst in instructions|sort(attribute="mnemonic")
+  £ for enc in inst.encodings
+            {{common.instruction_class(enc)}},
+  £ endfor
+£ endfor
+
           };
 
           aarch64_isa_modes isa_mode;
@@ -49,10 +60,13 @@ namespace captive
 
     £ for inst in instructions|sort(attribute="mnemonic")
       £ for enc in inst.encodings
-      class aarch64_a64_{{inst.mnemonic|lower}}_{{enc.id}} : public aarch64_decode_a64
+      class {{common.instruction_class(enc)}} : public aarch64_decode_a64
       {
-        //TODO getter for each of the operands
-      }
+        £ for bs in enc.named_bit_sequences()
+        unit8_t get_{{bs.name}}();
+        £ endfor
+      };
+
       £ endfor
     £ endfor
     }
