@@ -11,6 +11,7 @@
 £ macro encoding(enc)
 // {{ enc.instruction.name }} [{{enc.instruction.fileName}}]
 instructionClass = {{common.instruction_class(enc)}};
+return true;
 £- endmacro
 
 bool aarch64_decode::decode_a64(uint32_t ir)
