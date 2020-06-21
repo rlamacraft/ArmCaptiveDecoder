@@ -107,6 +107,7 @@ class Encoding(XmlDecoder):
 
     # NOTE: doesn't support inverted sequences
     #   because only alias have inverted bit sequences and the decoder doesn't care about aliases
+    # NOTE: this is indexed from the left, where 0 corresponds to the highest position (leftmost)
     def getBit(self, index):
         sequence = self.getSequenceByBitIndex(index)
         if sequence.inverted:

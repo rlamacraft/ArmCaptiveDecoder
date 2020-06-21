@@ -113,6 +113,37 @@ class EncodingsSet():
             ret += unbound_count[i]
         return(ret)
 
+    def _remove_repeated_none_and_leading_none(self, elements):
+        no_repeat_none = []
+        for elem in elements:
+            if not elem == None:
+                no_repeat_none.append(elem)
+            else:
+                if no_repeat_none != [] and no_repeat_none[-1] != None:
+                    no_repeat_none.append(None)
+        return(no_repeat_none)
+
+    def shared_bits_as_list_of_ranges(self):
+        if len(self.shared_bits) == 0:
+            return([])
+        none_separated_bit_data = self._remove_repeated_none_and_leading_none([
+            {'v':2 ** (31 - i) if self.shared_bits[i] == Bit.One else 0,'high':i,'low':i}
+            if i in self.shared_bits else None for i in range(0,32)])
+        data = []
+        initial = {'v':0,'high':None,'low':None}
+        accumulator = initial
+        for datum in none_separated_bit_data:
+            if datum is None:
+                data.append(accumulator)
+                accumulator = initial
+            else:
+                accumulator = {
+                    'v': accumulator['v'] + datum['v'],
+                    'high': accumulator['high'] if accumulator['high'] is not None else 31 - datum['high'],
+                    'low': 31 - datum['low']
+                }
+        return(data)
+
 def findCommonBitsAndSplitRecursively(encoding_set):
     encoding_subsets = encoding_set.splitOnCommonBoundBits()
     if len(encoding_subsets) == 1:

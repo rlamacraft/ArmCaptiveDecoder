@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath( os.path.join(os.path.dirname(__file__), '..') ))
+
 import unittest
 from decoder import *
 from test_parser import *
@@ -110,6 +114,23 @@ class TestEncodingsSet(unittest.TestCase):
         encoding_one = Encoding(parseSingleNode(TestEncoding.xml_specified(dict([(i,'0') for i in range(1,32)]))).childNodes[0], None)
         encoding_set = EncodingsSet(set([encoding_zero, encoding_one]), {})
         self.assertEqual(encoding_set.encodingsOrderedByIncreasingUnbound(), [encoding_zero, encoding_one])
+
+    def test_shared_bits_as_list_of_ranges(self):
+        self.assertEqual(TestEncodingsSet.zero_and_one_set().shared_bits_as_list_of_ranges(), [])
+        self.assertEqual(TestEncodingsSet.zero_and_one_set({
+            1: Bit.Zero, 2: Bit.Zero, 3: Bit.Zero
+        }).shared_bits_as_list_of_ranges(),[
+            {'v':0,'high':30,'low':28}
+        ])
+        self.assertEqual(EncodingsSet(set([
+            TestEncodingsSet.one_encoding(),
+            TestEncodingsSet.two_encoding()
+        ]), {
+            0: Bit.One, 10: Bit.Zero
+        }).shared_bits_as_list_of_ranges(),[
+            {'v':2 ** 31,'high':31,'low':31},
+            {'v':0      ,'high':21,'low':21}
+        ])
 
 def main():
     unittest.main()
