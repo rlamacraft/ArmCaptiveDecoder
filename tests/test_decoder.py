@@ -126,10 +126,10 @@ class TestEncodingsSet(unittest.TestCase):
             TestEncodingsSet.one_encoding(),
             TestEncodingsSet.two_encoding()
         ]), {
-            0: Bit.One, 10: Bit.Zero
+            0: Bit.One, 10: Bit.Zero, 11: Bit.Zero
         }).shared_bits_as_list_of_ranges(),[
-            {'v':2 ** 31,'high':31,'low':31},
-            {'v':0      ,'high':21,'low':21}
+            {'v':1,'high':31,'low':31},
+            {'v':0,'high':21,'low':20}
         ])
 
 def main():

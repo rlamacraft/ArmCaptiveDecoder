@@ -127,7 +127,7 @@ class EncodingsSet():
         if len(self.shared_bits) == 0:
             return([])
         none_separated_bit_data = self._remove_repeated_none_and_leading_none([
-            {'v':2 ** (31 - i) if self.shared_bits[i] == Bit.One else 0,'high':i,'low':i}
+            {'v':self.shared_bits[i].value,'high':i,'low':i}
             if i in self.shared_bits else None for i in range(0,32)])
         data = []
         initial = {'v':0,'high':None,'low':None}
@@ -138,7 +138,7 @@ class EncodingsSet():
                 accumulator = initial
             else:
                 accumulator = {
-                    'v': accumulator['v'] + datum['v'],
+                    'v': (accumulator['v'] * 2) + datum['v'],
                     'high': accumulator['high'] if accumulator['high'] is not None else 31 - datum['high'],
                     'low': 31 - datum['low']
                 }
