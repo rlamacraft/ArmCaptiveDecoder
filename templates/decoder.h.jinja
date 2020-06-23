@@ -22,7 +22,7 @@ namespace captive
             {{common.instruction_class(enc)}},
   £ endfor
 £ endfor
-
+            aarch64_unknown = -1
           };
 
           aarch64_isa_modes isa_mode;
@@ -69,6 +69,10 @@ namespace captive
 
       £ endfor
     £ endfor
+
+      class aarch64_unknown : public aarch64_decode_a64
+      {
+      }
     }
   }
 }
