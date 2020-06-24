@@ -25,7 +25,13 @@ Example
 awk -f instruction_types.awk <<captive/arch/aarch64/aarch64-decode.cpp>>
 ```
 
-This script is purely for development purposes and should be removed when no longer needed.
+### end_of_block.awk
+For finding all of the instructions that trigger the end of a block, so that it can be determined what property of the instructions in the XML spec files determines this.
+
+To execute,
+```sh
+awk -f end_of_block.awk <<captive/arch/aarch64/aarch64-decode.cpp>> | sort | uniq | grep "true"
+```
 
 ## Templates
 
