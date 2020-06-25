@@ -19,13 +19,6 @@ if __name__ == "__main__":
     encoding_set = EncodingsSet(set(encodings), {})
     encodings_sets = set(list(findCommonBitsAndSplitRecursively(encoding_set)))
 
-    # [print(str(es)) for es in encodings_sets]
+    [print(str(es)) for es in encodings_sets]
 
     generate_code(encodings_sets, instructions)
-
-    for inst in instructions:
-        if len(inst.encodings) > 1:
-            print(inst.name, inst.fileName)
-            for enc in inst.encodings:
-                print(enc, enc.id)
-            print("###")

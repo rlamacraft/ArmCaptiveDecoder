@@ -29,6 +29,48 @@ def generate_decoder_cpp(encodings_sets):
     with open('out/decoder.cpp', 'w') as file:
         file.write(template.render(
             sets=encodings_sets,
+            jumps={
+                "aarch64_a64_b_B_only_branch_imm": {
+                    "type": "DIRECT",
+                    "predicated": False,
+                    "target": True,
+                },
+                "aarch64_a64_b_B_only_condbranch": {
+                    "type": "INDIRECT",
+                    "predicated": False,
+                    "target": False,
+                },
+                "aarch64_a64_br_BR_64_branch_reg": {
+                    "type": "INDIRECT",
+                    "predicated": False,
+                    "target": False,
+                },
+                "aarch64_a64_cbz_br19": {
+                    "type": "DIRECT",
+                    "predicated": True,
+                    "target": True,
+                },
+                "aarch64_a64_drps_DRPS_64E_branch_reg": {
+                    "type": "INDIRECT",
+                    "predicated": False,
+                    "target": False,
+                },
+                "aarch64_a64_eret_ERET_64E_branch_reg": {
+                    "type": "INDIRECT",
+                    "predicated": False,
+                    "target": False,
+                },
+                "aarch64_a64_ret_RET_64R_branch_reg": {
+                    "type": "INDIRECT",
+                    "predicated": False,
+                    "target": False,
+                },
+                "aarch64_a64_tbz_TBZ_only_testbranch": {
+                    "type": "INDIRECT",
+                    "predicated": True,
+                    "target": False,
+                }
+            },
             drop_unbound_from_pos_map=lambda pos_map: dict([(x,(y,z)) for x,(y,z) in pos_map.items() if z is not None]),
             list=list
         ))

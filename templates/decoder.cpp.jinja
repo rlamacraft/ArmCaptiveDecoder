@@ -26,9 +26,9 @@ bool aarch64_decode::decode(uint32_t isa_mode, uint64_t insn_pc, const uint8_t *
   bool result = false;
   switch ((aarch64_isa_modes)isa_mode)
   {
-  case aarch64_a64:
-    result = decode_a64(ir);
-    break;
+    case aarch64_a64:
+      result = decode_a64(ir);
+      break;
   }
   if (opcode == aarch64_unknown)
   {
@@ -36,6 +36,37 @@ bool aarch64_decode::decode(uint32_t isa_mode, uint64_t insn_pc, const uint8_t *
     result = true;
   }
   return result;
+}
+
+captive::arch::JumpInfo aarch64_decode::get_jump_info()
+{
+  JumpInfo info;
+  info.type = captive::arch::JumpInfo::NONE;
+  info.target = 0;
+  switch (opcode)
+  {
+  £ for set in sets
+    £ for enc in set.encodings
+      £ set ic = common.instruction_class(enc)
+      £ if ic in jumps.keys()
+    case {{ic}}:
+      £ set v = jumps[ic]
+      £ if v["predicated"]
+        info.type = captive::arch::JumpInfo::{{v["type"]}}_PREDICATED;
+      £ else
+        info.type = captive::arch::JumpInfo::{{v["type"]}};
+      £ endif
+      £ if v["target"]
+        info.target = pc + (({{ic}} *)this)->imms64;
+      £ endif
+      break;
+      £ endif
+    £ endfor
+  £ endfor
+    default:
+      break;
+  }
+  return info;
 }
 
 bool aarch64_decode::decode_a64(uint32_t ir)
