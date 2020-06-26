@@ -30,43 +30,43 @@ def generate_decoder_cpp(encodings_sets):
         file.write(template.render(
             sets=encodings_sets,
             jumps={
-                "aarch64_a64_b_B_only_branch_imm": {
+                "aarch64_a64_b_B_only_branch_imm": { # b_uncond.xml
                     "type": "DIRECT",
                     "predicated": False,
                     "target": True,
                 },
-                "aarch64_a64_b_B_only_condbranch": {
+                "aarch64_a64_b_B_only_condbranch": { # b_cond.xml
                     "type": "INDIRECT",
                     "predicated": False,
                     "target": False,
                     "is_predicated": True,
                 },
-                "aarch64_a64_br_BR_64_branch_reg": {
+                "aarch64_a64_br_BR_64_branch_reg": { # br.xml
                     "type": "INDIRECT",
                     "predicated": False,
                     "target": False,
                 },
-                "aarch64_a64_cbz_br19": {
+                "aarch64_a64_cbz_br19": { # cbz.xml
                     "type": "DIRECT",
                     "predicated": True,
                     "target": True,
                 },
-                "aarch64_a64_drps_DRPS_64E_branch_reg": {
+                "aarch64_a64_drps_DRPS_64E_branch_reg": { # drps.xml
                     "type": "INDIRECT",
                     "predicated": False,
                     "target": False,
                 },
-                "aarch64_a64_eret_ERET_64E_branch_reg": {
+                "aarch64_a64_eret_ERET_64E_branch_reg": { # eret.xml
                     "type": "INDIRECT",
                     "predicated": False,
                     "target": False,
                 },
-                "aarch64_a64_ret_RET_64R_branch_reg": {
+                "aarch64_a64_ret_RET_64R_branch_reg": { # ret.xml
                     "type": "INDIRECT",
                     "predicated": False,
                     "target": False,
                 },
-                "aarch64_a64_tbz_TBZ_only_testbranch": {
+                "aarch64_a64_tbz_TBZ_only_testbranch": { # tbz.xml
                     "type": "INDIRECT",
                     "predicated": True,
                     "target": False,
