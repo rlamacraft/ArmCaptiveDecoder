@@ -39,6 +39,7 @@ def generate_decoder_cpp(encodings_sets):
                     "type": "INDIRECT",
                     "predicated": False,
                     "target": False,
+                    "is_predicated": True,
                 },
                 "aarch64_a64_br_BR_64_branch_reg": {
                     "type": "INDIRECT",

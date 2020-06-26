@@ -10,7 +10,11 @@
 
 £ macro encoding(enc)
 // {{ enc.instruction.name }} [{{enc.instruction.fileName}}]
-opcode = {{common.instruction_class(enc)}};
+£ set ic = common.instruction_class(enc)
+opcode = {{ic}};
+£ if ic in jumps.keys() and jumps[ic]
+is_predicated = (({{ic}}&)*this).decode_is_predicated();
+£ endif
 return true;
 £- endmacro
 
