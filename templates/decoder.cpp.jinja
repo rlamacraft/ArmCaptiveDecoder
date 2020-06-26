@@ -12,8 +12,11 @@
 // {{ enc.instruction.name }} [{{enc.instruction.fileName}}]
 £ set ic = common.instruction_class(enc)
 opcode = {{ic}};
-£ if ic in jumps.keys() and jumps[ic]
+£ if ic in jumps.keys()
+  £ if jumps[ic].is_predicated
 is_predicated = (({{ic}}&)*this).decode_is_predicated();
+  £ endif
+end_of_block = true;
 £ endif
 return true;
 £- endmacro
