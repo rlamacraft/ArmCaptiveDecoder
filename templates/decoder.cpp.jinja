@@ -34,6 +34,7 @@ bool aarch64_decode::decode(uint32_t isa_mode, uint64_t insn_pc, const uint8_t *
   switch ((aarch64_isa_modes)isa_mode)
   {
     case aarch64_a64:
+      length = 4;
       result = decode_a64(ir);
       break;
   }
@@ -76,7 +77,7 @@ captive::arch::JumpInfo aarch64_decode::get_jump_info()
   return info;
 }
 
-bool aarch64_decode::decode_a64(uint32_t ir)
+inline bool aarch64_decode::decode_a64(uint32_t ir)
 {
   £ for enc_set in sets
   if(
