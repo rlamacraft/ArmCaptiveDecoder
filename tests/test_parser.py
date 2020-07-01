@@ -102,6 +102,23 @@ class TestEncoding(unittest.TestCase):
         bit_sequences = encoding.named_bit_sequences()
         self.assertEqual(len(bit_sequences), 0)
 
+    def test_get_size_of_unbound_sequences(self):
+        encoding = Encoding(parseSingleNode(TestEncoding.xml_specified({
+            3: '0',
+            7: '1'
+        })).childNodes[0], None)
+        self.assertEqual(encoding.get_size_of_unbound_sequences(), {
+            3: 2,
+            24: 1
+        })
+
+        encoding = Encoding(parseSingleNode(TestEncoding.xml_specified({
+            31: '0',
+        })).childNodes[0], None)
+        self.assertEqual(encoding.get_size_of_unbound_sequences(), {
+            31: 1,
+        })
+
 class TestInstruction(unittest.TestCase):
 
     @staticmethod

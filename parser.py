@@ -92,6 +92,7 @@ class Encoding(XmlDecoder):
     def parse(self, xmlNode):
         regDiagram = xmlNode.getElementsByTagName("regdiagram")[0]
         isT16 = regDiagram.getAttribute("form") == "16"
+        self.psname = regDiagram.getAttribute("psname")
         self.id = xmlNode.getAttribute("id")
         self.instruction_set = "T16" if isT16 else xmlNode.getAttribute("isa")
         self.bitSequences = [BitSequence(boxNode, isT16) for boxNode in regDiagram.getElementsByTagName("box")]
@@ -130,6 +131,20 @@ class Encoding(XmlDecoder):
 
     def named_bit_sequences(self):
         return([bs for bs in self.bitSequences if bs.name != "_"])
+
+    def get_size_of_unbound_sequences(self):
+        size_dict = dict()
+        current_count = 0
+        for (_, (_, bitValue)) in self.getBitMany(range(32)).items():
+            if bitValue != None:
+                size_dict[current_count] = size_dict.get(current_count, 0) + 1
+                current_count = 0
+            else:
+                current_count += 1
+        if current_count > 0:
+            size_dict[current_count] = size_dict.get(current_count, 0) + 1
+        return(size_dict)
+
 
 class Instruction(XmlDecoder):
 
