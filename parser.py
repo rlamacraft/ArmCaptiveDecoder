@@ -106,13 +106,12 @@ class Encoding(XmlDecoder):
             index_of_remainder -= bitSequence.width
         raise ValueError("index (" + index + ") > length of instruction (" + self.total_bit_sequence_length)
 
-    # NOTE: doesn't support inverted sequences
-    #   because only alias have inverted bit sequences and the decoder doesn't care about aliases
+    # NOTE: inverted bit sequences are treated as unbound for uniquely distinguishing encodings
     # NOTE: this is indexed from the left, where 0 corresponds to the highest position (leftmost)
     def getBit(self, index):
         sequence = self.getSequenceByBitIndex(index)
         if sequence.inverted:
-            raise ValueError("getBit does not support inverted bit sequences")
+            return((BitValueType.Unbound, None))
         return(sequence.constants[index - (31 - sequence.high_bit)])
 
     def getBitRange(self, lower, upper):
@@ -194,12 +193,24 @@ def parseInstruction(xmlDir, xmlFile):
     except:
         raise ValueError("Missing data in", xmlFile)
 
+def xmlFileNames(indexFilePath):
+    indexXml = xml.dom.minidom.parse(indexFilePath)
+    iforms = indexXml.getElementsByTagName('iform')
+    return([iform.getAttribute('iformfile') for iform in iforms])
+
 def parseAllFiles():
     xmlDir = "spec/ISA_v82A_A64_xml_00bet3.1/"
-    indexFile = xmlDir + "index.xml"
-    indexXml = xml.dom.minidom.parse(indexFile)
-    iforms = indexXml.getElementsByTagName('iform')
-    xmlFiles = [iform.getAttribute('iformfile') for iform in iforms]
+    baseInstructions_indexFile = xmlDir + "index.xml"
+    # indexXml = xml.dom.minidom.parse(indexFile)
+    # iforms = indexXml.getElementsByTagName('iform')
+    # xmlFiles_baseInstructions = [iform.getAttribute('iformfile') for iform in iforms]
+
+    fpsimdInstructions_indexFile = xmlDir + "fpsimdindex.xml"
+
+    baseInstructions_xmlFilePaths = xmlFileNames(baseInstructions_indexFile)
+    fpsimdInstructions_xmlFilePaths = xmlFileNames(fpsimdInstructions_indexFile)
+    xmlFiles = baseInstructions_xmlFilePaths + fpsimdInstructions_xmlFilePaths
+
     instructions_and_aliases = dict([(xmlFile, parseInstruction(xmlDir, xmlFile)) for xmlFile in xmlFiles])
 
     # Convert alias filenames to object references
