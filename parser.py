@@ -164,6 +164,7 @@ class Instruction(XmlDecoder):
     def parse(self, xmlNode):
         instNode = xmlNode.getElementsByTagName("instructionsection")[0]
         self.name = instNode.getElementsByTagName("heading")[0].childNodes[0].data
+        self.id = getAttr(instNode, "id", None)
         docvars = Instruction.parse_docvars(instNode)
         self.mnemonic = docvars["mnemonic"] if "mnemonic" in docvars else instNode.getAttribute('id')
         self.is_alias = getAttr(instNode, "type", "instruction") == "alias"
