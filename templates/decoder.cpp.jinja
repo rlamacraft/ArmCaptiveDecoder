@@ -122,7 +122,7 @@ inline bool aarch64_decode::decode_a64(uint32_t ir)
 £ for enc_set in sets
   £ for enc in enc_set.encodings
     £ for bs in enc.named_bit_sequences()
-uint8_t {{common.instruction_class(enc)}}::get_{{bs.name}}
+uint8_t {{common.instruction_class(enc)}}::get_{{mk_cpp_identifier(bs.name)}}
 {
       £ if bs.width == 1
   return BITSEL(ir, {{bs.high_bit}});

@@ -1,8 +1,13 @@
 from jinja2 import Environment, FileSystemLoader
+import re
 
 def prepend_lines(multiline_string, prefix):
     """prepend a string before every line i.e. after every newline char"""
     return(prefix + multiline_string.replace('\n', '\n' + prefix))
+
+def mk_cpp_identifier(string):
+    """Convert any passed string into a valid c++ identifier by converting all invalid chars to underscores"""
+    return(re.sub(r"[^a-zA-Z0-9]","_",string))
 
 def environment():
     return(Environment(
@@ -73,6 +78,7 @@ def generate_decoder_cpp(encodings_sets):
                 }
             },
             drop_unbound_from_pos_map=lambda pos_map: dict([(x,(y,z)) for x,(y,z) in pos_map.items() if z is not None]),
-            list=list
+            list=list,
+            mk_cpp_identifier=mk_cpp_identifier
         ))
     print("Written to out/decoder.cpp")
