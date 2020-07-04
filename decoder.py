@@ -20,6 +20,12 @@ class EncodingsSet():
     def is_singleton(self):
         return(len(self) == 1)
 
+    def get_singleton(self):
+        if(self.is_singleton()):
+            [ret] = self.encodings
+            return(ret)
+        raise ValueError("Only call if this EncodingsSet is unknown to be a singleton")
+
     def __str__(self):
         out = f"{len(self.encodings)} instructions share the bits: "
         for bit in range(0,32):
