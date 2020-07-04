@@ -24,7 +24,8 @@ def generate_decoder_h(instructions):
     template = env.get_template('templates/decoder.h.jinja')
     with open('out/decoder.h', 'w') as file:
         file.write(template.render(
-            instructions=instructions
+            instructions=instructions,
+            mk_cpp_identifier=mk_cpp_identifier
         ))
     print("Written to out/decoder.h")
 

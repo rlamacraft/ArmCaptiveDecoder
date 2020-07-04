@@ -15,7 +15,7 @@ namespace captive
           {
             aarch64_a64 = 0,
           };
-          enum aarch64_instruction_classes
+          enum aarch64_opcodes
           {
 £ for inst in instructions|sort(attribute="mnemonic")
   £ for enc in inst.encodings
@@ -63,7 +63,7 @@ namespace captive
       class {{common.instruction_class(enc)}} : public aarch64_decode_a64
       {
         £ for bs in enc.named_bit_sequences()
-        unit8_t get_{{bs.name}}();
+        uint8_t get_{{mk_cpp_identifier(bs.name)}}();
         £ endfor
       };
 
