@@ -101,7 +101,7 @@ inline bool aarch64_decode::decode_a64(uint32_t ir)
       £- if loop.index0 != 0
      &&
       £- endif
- (((ir >> {{pad_left_bit_pos(bit_pos)}}) & 1) == {{bit_str(bit_val)}})
+ BITSEL(ir, {{bit_pos}}) == {{bit_str(bit_val)}}
       £ endfor
     ) {
       {{ encoding(enc) | indent(6) }}
