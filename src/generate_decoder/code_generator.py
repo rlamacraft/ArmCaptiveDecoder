@@ -17,7 +17,16 @@ def environment():
 
 def generate_code(encodings_sets, instructions):
     generate_decoder_h(instructions)
+    generate_decode_h()
     generate_decoder_cpp(encodings_sets)
+
+def generate_decode_h():
+    env = environment()
+    template = env.get_template('templates/decode.h.jinja')
+    with open('../../out/decode.h', 'w') as file:
+        file.write(template.render(
+        ))
+    print("Written to out/decode.h")
 
 def generate_decoder_h(instructions):
     env = environment()

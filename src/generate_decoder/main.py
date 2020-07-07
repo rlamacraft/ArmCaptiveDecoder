@@ -19,7 +19,7 @@ def frequency_of_length_of_unbound_bit_sequences(encodings):
 
 if __name__ == "__main__":
     instructions = parseAllFiles()
-    # print("Parsed", len(instructions), "instructions.")
+    print("Parsed", len(instructions), "instructions.")
 
     encodings = list(itertools.chain(*[inst.encodings for inst in instructions]))
     print(len(encodings), "encodings found.")
