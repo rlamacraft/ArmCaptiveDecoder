@@ -18,7 +18,7 @@ def environment():
 def generate_code(encodings_sets, instructions):
     generate_decoder_h(instructions)
     generate_decode_h()
-    generate_disasm_cpp()
+    generate_disasm_cpp(instructions)
     generate_decoder_cpp(encodings_sets)
 
 def generate_decode_h():
@@ -29,11 +29,12 @@ def generate_decode_h():
         ))
     print("Written to out/decode.h")
 
-def generate_disasm_cpp():
+def generate_disasm_cpp(instructions):
     env = environment()
     template = env.get_template('templates/disasm.cpp.jinja')
     with open('../../out/disasm.cpp', 'w') as file:
         file.write(template.render(
+            instructions=instructions
         ))
     print("Written to out/disasm.cpp")
 
