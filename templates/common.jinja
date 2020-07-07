@@ -2,3 +2,6 @@
 aarch64_a64_{{enc.instruction.id|lower}}_{{enc.id|lower}}
 £- endmacro
 
+£ macro opcode(enc)
+op_{{instruction_class(enc)}}
+£- endmacro

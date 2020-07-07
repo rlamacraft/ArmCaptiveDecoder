@@ -19,7 +19,7 @@ namespace captive
           {
 £ for inst in instructions|sort(attribute="mnemonic")
   £ for enc in inst.encodings
-            {{common.instruction_class(enc)}},
+            {{common.opcode(enc)}},
   £ endfor
 £ endfor
             aarch64_unknown = -1
@@ -72,7 +72,7 @@ namespace captive
 
       class aarch64_unknown : public aarch64_decode_a64
       {
-      }
+      };
     }
   }
 }

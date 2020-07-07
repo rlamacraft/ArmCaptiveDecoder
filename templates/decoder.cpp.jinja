@@ -11,7 +11,7 @@
 £ macro encoding(enc)
 // {{ enc.instruction.name }} [{{enc.instruction.fileName}}]
 £ set ic = common.instruction_class(enc)
-opcode = {{ic}};
+opcode = {{common.opcode(enc)}};
 £ if ic in jumps.keys()
   £ if jumps[ic].is_predicated
 is_predicated = (({{ic}}&)*this).decode_is_predicated();
@@ -21,7 +21,7 @@ end_of_block = true;
 return true;
 £- endmacro
 
-#include <aarch64-decode.h>
+#include <arm64-decode.h>
 using namespace captive::arch::aarch64;
 bool aarch64_decode::decode(uint32_t isa_mode, uint64_t insn_pc, const uint8_t *ptr)
 {
@@ -55,16 +55,17 @@ captive::arch::JumpInfo aarch64_decode::get_jump_info()
   {
   £ for set in sets
     £ for enc in set.encodings
-      £ set ic = common.instruction_class(enc)
-      £ if ic in jumps.keys()
-    case {{ic}}:
-      £ set v = jumps[ic]
+      £ set opcode = common.opcode(enc)
+      £ if opcode in jumps.keys()
+    case {{opcode}}:
+      £ set v = jumps[opcode]
       £ if v["predicated"]
         info.type = captive::arch::JumpInfo::{{v["type"]}}_PREDICATED;
       £ else
         info.type = captive::arch::JumpInfo::{{v["type"]}};
       £ endif
       £ if v["target"]
+        £ set ic = common.instruction_class(enc)
         info.target = pc + (({{ic}} *)this)->imms64;
       £ endif
       break;
@@ -122,7 +123,7 @@ inline bool aarch64_decode::decode_a64(uint32_t ir)
 £ for enc_set in sets
   £ for enc in enc_set.encodings
     £ for bs in enc.named_bit_sequences()
-uint8_t {{common.instruction_class(enc)}}::get_{{mk_cpp_identifier(bs.name)}}
+uint8_t {{common.instruction_class(enc)}}::get_{{mk_cpp_identifier(bs.name)}}()
 {
       £ if bs.width == 1
   return BITSEL(ir, {{bs.high_bit}});
