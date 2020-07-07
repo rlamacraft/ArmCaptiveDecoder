@@ -21,13 +21,13 @@ end_of_block = true;
 return true;
 £- endmacro
 
-#include <arm64-decode.h>
+#include "arm64-decode.h"
 using namespace captive::arch::aarch64;
-bool aarch64_decode::decode(uint32_t isa_mode, uint64_t insn_pc, const uint8_t *ptr)
+bool aarch64_decode::decode(uint32_t isa_mode, uint64_t insn_pc, const uint32_t *ptr)
 {
   opcode = aarch64_unknown;
   pc = insn_pc;
-  ir = *(const uint32_t *)ptr;
+  ir = *ptr;
   end_of_block = false;
   is_predicated = false;
   bool result = false;

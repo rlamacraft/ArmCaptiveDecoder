@@ -19,7 +19,7 @@ def frequency_of_length_of_unbound_bit_sequences(encodings):
 
 if __name__ == "__main__":
     instructions = parseAllFiles()
-    print("Parsed", len(instructions), "instructions.")
+    # print("Parsed", len(instructions), "instructions.")
 
     encodings = list(itertools.chain(*[inst.encodings for inst in instructions]))
     print(len(encodings), "encodings found.")
@@ -27,12 +27,9 @@ if __name__ == "__main__":
     encoding_set = EncodingsSet(set(encodings), {})
     encodings_sets = set(list(findCommonBitsAndSplitRecursively(encoding_set)))
 
-    # [print(str(es)) for es in encodings_sets]
+    # # [print(str(es)) for es in encodings_sets]
 
     generate_code(encodings_sets, instructions)
 
-    # for enc in [e for e in encodings if "branch" in e.psname]:
-    #     print(enc.instruction.fileName, enc.psname)
-    #     print(enc)
-
     # frequency_of_length_of_unbound_bit_sequences(encodings)
+

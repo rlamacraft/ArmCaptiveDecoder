@@ -33,6 +33,24 @@ To execute,
 awk -f end_of_block.awk <<captive/arch/aarch64/aarch64-decode.cpp>> | sort | uniq | grep "true"
 ```
 
+## Src
+
+Source Code
+
+### Disasm
+
+A standalone disassembler that uses the generated decoder to disasemble a given ARM binary
+
+#### Compile
+
+```sh
+gcc main.cpp -o decode.o -lstdc++ -Wno-c++11-extensions
+```
+
+### Generate Decoder
+
+The code for parsing the ISA spec's XML files, generated decoder, and outputing that as C++ code in a created root-level "out" directory
+
 ## Templates
 
 These are the files that Jinja2 uses to generated the output C++ files.

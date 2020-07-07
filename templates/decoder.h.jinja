@@ -1,7 +1,7 @@
 £ import 'templates/common.jinja' as common
 
 #pragma once
-#include <decode.h>
+#include "../src/disasm/decode.h"
 namespace captive
 {
   namespace arch
@@ -28,7 +28,7 @@ namespace captive
           aarch64_isa_modes isa_mode;
           aarch64_opcodes opcode;
           uint32_t ir;
-          bool decode(uint32_t isa_mode, uint64_t insn_pc, const uint8_t *ptr) override;
+          bool decode(uint32_t isa_mode, uint64_t insn_pc, const uint32_t *ptr) override;
           JumpInfo get_jump_info() override;
         private:
           bool decode_a64(uint32_t ir);

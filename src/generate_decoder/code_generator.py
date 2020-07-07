@@ -11,7 +11,7 @@ def mk_cpp_identifier(string):
 
 def environment():
     return(Environment(
-        loader=FileSystemLoader('.'),
+        loader=FileSystemLoader('../..'),
         line_statement_prefix='£'
     ))
 
@@ -22,7 +22,7 @@ def generate_code(encodings_sets, instructions):
 def generate_decoder_h(instructions):
     env = environment()
     template = env.get_template('templates/decoder.h.jinja')
-    with open('out/decoder.h', 'w') as file:
+    with open('../../out/arm64-decode.h', 'w') as file:
         file.write(template.render(
             instructions=instructions,
             mk_cpp_identifier=mk_cpp_identifier
@@ -32,7 +32,7 @@ def generate_decoder_h(instructions):
 def generate_decoder_cpp(encodings_sets):
     env = environment()
     template = env.get_template('templates/decoder.cpp.jinja')
-    with open('out/decoder.cpp', 'w') as file:
+    with open('../../out/arm64-decode.cpp', 'w') as file:
         file.write(template.render(
             sets=encodings_sets,
             jumps={

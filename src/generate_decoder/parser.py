@@ -200,7 +200,7 @@ def xmlFileNames(indexFilePath):
     return([iform.getAttribute('iformfile') for iform in iforms])
 
 def parseAllFiles():
-    xmlDir = "spec/ISA_v82A_A64_xml_00bet3.1/"
+    xmlDir = "../../spec/ISA_v82A_A64_xml_00bet3.1/"
     baseInstructions_indexFile = xmlDir + "index.xml"
     # indexXml = xml.dom.minidom.parse(indexFile)
     # iforms = indexXml.getElementsByTagName('iform')
