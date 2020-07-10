@@ -17,7 +17,7 @@ int disasm(uint32_t ir) {
   £ for enc in inst.encodings
   if(decoder.opcode == aarch64_decode_a64::{{common.opcode(enc)}})
   {
-    printf("Decoded to {{inst.name}}\n");
+    printf("{{inst.mnemonic}}\n");
   }
   £ endfor
 £ endfor
