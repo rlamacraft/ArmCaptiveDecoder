@@ -51,6 +51,20 @@ gcc main.cpp -o decode.o -lstdc++ -Wno-c++11-extensions
 
 The code for parsing the ISA spec's XML files, generated decoder, and outputing that as C++ code in a created root-level "out" directory
 
+#### main.py
+
+This is what parses the XML files, builds the decoder, and generates the C++ files in the /out directory
+
+#### query_parsed_instruction_data.py
+
+A simple program for querying the parsed instruction data - useful for when the output of the generated code, disassembler, or other part of the system outputs a piece of info about an instructions but not enough to aid with the debugging process e.g. the mnemonic is printed by the disassembler but the filename from which the decode is derived from is useful to know.
+
+The command line args are explorable through the standard usage and help mechanics
+
+#### Other files
+
+All other files in this directory are modules that are called by the above scripts.
+
 ## Templates
 
 These are the files that Jinja2 uses to generated the output C++ files.

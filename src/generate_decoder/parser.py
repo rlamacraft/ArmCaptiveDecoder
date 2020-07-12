@@ -199,20 +199,21 @@ def xmlFileNames(indexFilePath):
     iforms = indexXml.getElementsByTagName('iform')
     return([iform.getAttribute('iformfile') for iform in iforms])
 
-def parseAllFiles():
+def parseAllFiles(include_aliases = False):
     xmlDir = "../../spec/ISA_v82A_A64_xml_00bet3.1/"
+
     baseInstructions_indexFile = xmlDir + "index.xml"
-    # indexXml = xml.dom.minidom.parse(indexFile)
-    # iforms = indexXml.getElementsByTagName('iform')
-    # xmlFiles_baseInstructions = [iform.getAttribute('iformfile') for iform in iforms]
+    baseInstructions_xmlFilePaths = xmlFileNames(baseInstructions_indexFile)
 
     fpsimdInstructions_indexFile = xmlDir + "fpsimdindex.xml"
-
-    baseInstructions_xmlFilePaths = xmlFileNames(baseInstructions_indexFile)
     fpsimdInstructions_xmlFilePaths = xmlFileNames(fpsimdInstructions_indexFile)
+
     xmlFiles = baseInstructions_xmlFilePaths + fpsimdInstructions_xmlFilePaths
 
     instructions_and_aliases = dict([(xmlFile, parseInstruction(xmlDir, xmlFile)) for xmlFile in xmlFiles])
+
+    if(include_aliases):
+        return(instructions_and_aliases.values())
 
     # Convert alias filenames to object references
     just_instructions = set()
