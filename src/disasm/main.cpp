@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
   int sum = 0;
   FILE *fp = fopen(argv[1], "rb");
   while( fread(bytes, 4, 1, fp) != 0) {
-    sum = bytes[3] | (bytes[2]<<8) | (bytes[1]<<16) | (bytes[0]<<24);
+    sum = bytes[0] | (bytes[1]<<8) | (bytes[2]<<16) | (bytes[3]<<24);
     printf("%x ", sum);
     disasm(sum);
   }
