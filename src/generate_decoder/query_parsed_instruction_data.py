@@ -20,6 +20,9 @@ parser.add_argument('--q-encoding-count', dest='query_encoding_count', action='s
 
 args = parser.parse_args()
 
+if(args.query_mnemonic is not None and any(filter(str.islower, args.query_mnemonic))):
+   print("Are you sure the query is correct? Mnemonic should be all uppercase.")
+
 instructions = parseAllFiles(include_aliases=args.include_aliases)
 
 filtered_instructions = [i for i in instructions if
