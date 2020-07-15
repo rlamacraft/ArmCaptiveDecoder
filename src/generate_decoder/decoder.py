@@ -14,6 +14,9 @@ class EncodingsSet():
         self.encodings = encodings
         self.shared_bits = shared_bits
 
+    def has_shared_bits(self):
+        return(len(self.shared_bits) > 0)
+
     def __len__(self):
         return(len(self.encodings))
 
@@ -75,7 +78,7 @@ class EncodingsSet():
                 ones.append(encoding)
         return({zeros, ones})
 
-    # returns 2 ** n new encoding sets by splitting on n bit positions
+    # returns 2 ** n new sets of encodings by splitting on n bit positions
     def splitMany(self, common_bit_positions):
         sets = {self}
         for bit_position in common_bit_positions:
@@ -150,19 +153,25 @@ class EncodingsSet():
                 }
         return(data)
 
-def findCommonBitsAndSplitRecursively(encoding_set):
-    encoding_subsets = encoding_set.splitOnCommonBoundBits()
-    if len(encoding_subsets) == 1:
-        # stop when splitting does nothing but apply singleton function
-        return {encoding_set}
-    encoding_subsubsets = set()
-    for subset in encoding_subsets:
-        if len(subset) == 0:
-            # we don't care about empty encoding sets
-            pass
-        elif len(subset) == 1:
-            # don't split singletons sets to keep the minimum shared_bits set
-            encoding_subsubsets |= {subset}
+# The nodes of a decode tree, where the leaves at EncodingsSets
+class EncodingsTree():
+
+    def __init__(self, encoding_set, depth = 0):
+        self.source_enc_set = encoding_set
+        encoding_subsets = encoding_set.splitOnCommonBoundBits() # set of EncodingsSets
+        no_empty_enc_sets = set([x for x in encoding_subsets if len(x) > 0])
+        if(len(no_empty_enc_sets) == 1):
+            self.leaf = encoding_set
+            self.children = None
         else:
-            encoding_subsubsets |= findCommonBitsAndSplitRecursively(subset)
-    return(encoding_subsubsets)
+            self.leaf = None
+            self.children = set([EncodingsTree(x) for x in no_empty_enc_sets])
+
+    def is_leaf(self):
+        return(self.leaf is not None)
+
+    def number_of_children(self):
+        if(self.is_leaf()):
+            return(0)
+        else:
+            return(len(self.children))

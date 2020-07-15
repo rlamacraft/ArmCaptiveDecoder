@@ -15,11 +15,11 @@ def environment():
         line_statement_prefix='£'
     ))
 
-def generate_code(encodings_sets, instructions):
+def generate_code(encodings_tree, instructions):
     generate_decoder_h(instructions)
     generate_decode_h()
     generate_disasm_cpp(instructions)
-    generate_decoder_cpp(encodings_sets)
+    generate_decoder_cpp(encodings_tree)
 
 def generate_decode_h():
     env = environment()
@@ -48,12 +48,12 @@ def generate_decoder_h(instructions):
         ))
     print("Written to out/decoder.h")
 
-def generate_decoder_cpp(encodings_sets):
+def generate_decoder_cpp(encodings_tree):
     env = environment()
     template = env.get_template('templates/decoder.cpp.jinja')
     with open('../../out/arm64-decode.cpp', 'w') as file:
         file.write(template.render(
-            sets=encodings_sets,
+            tree=encodings_tree,
             jumps={
                 "op_aarch64_a64_b_uncond_b_only_branch_imm": { # b_uncond.xml
                     "type": "DIRECT",
