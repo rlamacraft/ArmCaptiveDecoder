@@ -125,11 +125,14 @@ class EncodingsSet():
             if not elem['v'] == None:
                 no_repeat_none.append((BitValueType.Bound,elem))
             else:
-                if(index == 0) and (elements[1]['v'] is not None): # if this [0] is None and [1] is not None then we want to skip over [0], with a dusjunctive of both 0 and 1
+                if    index > 0                           \
+                  and index < len(elements) - 1           \
+                  and elements[index - 1]['v'] is not None\
+                  and elements[index + 1]['v'] is not None:
                     no_repeat_none.append((BitValueType.Unbound, elem))
                 elif no_repeat_none != [] and no_repeat_none[-1] != None:
                     # only add a None if something else has been added first
-                    #   and the last element isn't a None
+                    #   and the last element isn't a None to drop repeat None
                     no_repeat_none.append(None)
         return(no_repeat_none)
 
