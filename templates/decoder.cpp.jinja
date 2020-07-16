@@ -82,39 +82,47 @@ inline bool aarch64_decode::decode_a64(uint32_t ir)
 {
   £ for enc_set in sets
   if(
-    £- for bit_range in enc_set.shared_bits_as_list_of_ranges()
+    £- set conjunctives = enc_set.shared_bits_as_list_of_ranges()
+    £- for disjunctives in conjunctives
       £- if loop.index0 != 0
    &&
       £- endif
-      £ if bit_range.low == bit_range.high
- BITSEL(ir, {{bit_range.high}}) == {{bit_range.v}}
-      £ else
- UNSIGNED_BITS(ir, {{bit_range.high}}, {{bit_range.low}}) == {{bit_range.v}}
-      £ endif
+      £ for bit_range in disjunctives
+ (
+        £- if loop.index0 != 0
+    ||
+        £- endif
+        £- if bit_range.low == bit_range.high
+BITSEL(ir, {{bit_range.high}}) == {{bit_range.v}}
+        £- else
+UNSIGNED_BITS(ir, {{bit_range.high}}, {{bit_range.low}}) == {{bit_range.v}}
+        £- endif
+)
+      £ endfor
     £ endfor
   ) {
-  £ if not enc_set.is_singleton()
-    £ for enc in enc_set.encodingsOrderedByIncreasingUnbound()
-    £ set bound_bits = drop_unbound_from_pos_map(enc.getBitMany(enc_set.findUncommonlyBoundBits())).items()
-    £ if list(bound_bits) != []
+    £ if not enc_set.is_singleton()
+      £ for enc in enc_set.encodingsOrderedByIncreasingUnbound()
+        £ set bound_bits = drop_unbound_from_pos_map(enc.getBitMany(enc_set.findUncommonlyBoundBits())).items()
+        £ if list(bound_bits) != []
     if(
-      £- for bit_pos, (_, bit_val) in bound_bits
-      £- if loop.index0 != 0
+          £- for bit_pos, (_, bit_val) in bound_bits
+            £- if loop.index0 != 0
      &&
-      £- endif
+            £- endif
  BITSEL(ir, {{31 - bit_pos}}) == {{bit_str(bit_val)}}
-      £ endfor
+          £ endfor
     ) {
       {{ encoding(enc) | indent(6) }}
     }
+        £ else
+    {{ encoding(enc) | indent }}
+        £ endif
+      £ endfor
     £ else
+      £ set enc = enc_set.get_singleton()
     {{ encoding(enc) | indent }}
     £ endif
-    £ endfor
-  £ else
-    £ set enc = enc_set.get_singleton()
-    {{ encoding(enc) | indent }}
-  £ endif
   }
   £ endfor
   return false;

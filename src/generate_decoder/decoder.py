@@ -121,11 +121,15 @@ class EncodingsSet():
 
     def _remove_repeated_none_and_leading_none(self, elements):
         no_repeat_none = []
-        for elem in elements:
-            if not elem == None:
-                no_repeat_none.append(elem)
+        for index, elem in enumerate(elements):
+            if not elem['v'] == None:
+                no_repeat_none.append((BitValueType.Bound,elem))
             else:
-                if no_repeat_none != [] and no_repeat_none[-1] != None:
+                if index == 0 and elements[1]['v'] is not None: # if this [0] is None and [1] is not None then we want to skip over [0], with a dusjunctive of both 0 and 1
+                    no_repeat_none.append((BitValueType.Unbound, elem))
+                elif no_repeat_none != [] and no_repeat_none[-1] != None:
+                    # only add a None if something else has been added first
+                    #   and the last element isn't a None
                     no_repeat_none.append(None)
         return(no_repeat_none)
 
@@ -134,23 +138,27 @@ class EncodingsSet():
             return([])
         none_separated_bit_data = self._remove_repeated_none_and_leading_none([
             {'v':self.shared_bits[i].value,'high':i,'low':i}
-            if i in self.shared_bits else None for i in range(0,32)])
-        data = []
-        initial = {'v':0,'high':None,'low':None}
-        accumulator = initial
+            if i in self.shared_bits else
+            {'v': None, 'high': i, 'low': i}
+            for i in range(0,32)])
+        conjunctive = []
+        initial = [{'v':0,'high':None,'low':None}] # disjunctives
+        disjunctive = initial
         for datum in none_separated_bit_data:
             if datum is None:
-                data.append(accumulator)
-                accumulator = initial
+                conjunctive.append(disjunctive)
+                disjunctive = initial
             else:
-                accumulator = {
-                    'v': (accumulator['v'] * 2) + datum['v'],
-                    'high': accumulator['high'] if accumulator['high'] is not None else 31 - datum['high'],
-                    'low': 31 - datum['low']
-                }
-        if(accumulator != initial):
-            data.append(accumulator)
-        return(data)
+                (t, value) = datum
+                if t == BitValueType.Bound:
+                    disjunctive = [{
+                        'v': (acc['v'] * 2) + value['v'],
+                        'high': acc['high'] if acc['high'] is not None else 31 - value['high'],
+                        'low': 31 - value['low']
+                    } for acc in disjunctive]
+                # else:
+                    # TODO: duplicate all elements of disjunctive, with 1 and 0 for value['v'] and the respective values for high and low
+        return(conjunctive)
 
 def findCommonBitsAndSplitRecursively(encoding_set):
     encoding_subsets = encoding_set.splitOnCommonBoundBits()
