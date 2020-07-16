@@ -29,6 +29,15 @@ class EncodingsSet():
             return(ret)
         raise ValueError("Only call if this EncodingsSet is unknown to be a singleton")
 
+    @staticmethod
+    def make_singleton(enc):
+        shared_bits = dict()
+        for i in range(0,32):
+            (bitType, bitValue) = enc.getBit(i)
+            if bitType == BitValueType.Bound:
+                shared_bits[i] = bitValue
+        return(EncodingsSet([enc], shared_bits))
+
     def __str__(self):
         out = f"{len(self.encodings)} instructions share the bits: "
         for bit in range(0,32):
@@ -128,11 +137,14 @@ class EncodingsSet():
             if not elem['v'] == None:
                 no_repeat_none.append((BitValueType.Bound,elem))
             else:
-                if index == 0 and elements[1]['v'] is not None: # if this [0] is None and [1] is not None then we want to skip over [0], with a dusjunctive of both 0 and 1
+                if    index > 0                           \
+                  and index < len(elements) - 1           \
+                  and elements[index - 1]['v'] is not None\
+                  and elements[index + 1]['v'] is not None:
                     no_repeat_none.append((BitValueType.Unbound, elem))
                 elif no_repeat_none != [] and no_repeat_none[-1] != None:
                     # only add a None if something else has been added first
-                    #   and the last element isn't a None
+                    #   and the last element isn't a None to drop repeat None
                     no_repeat_none.append(None)
         return(no_repeat_none)
 
@@ -189,7 +201,16 @@ class EncodingsTree():
             self.children = None
         else:
             self.leaf = None
-            self.children = set([EncodingsTree(x) for x in no_empty_enc_sets])
+            self.children = set()
+            for subset in no_empty_enc_sets:
+                if(subset.is_singleton()):
+                    # produce the most precise singleton encodings set to ensure that
+                    # the unbound bit hopping is used minimally i.e. only hop unbound
+                    # bits that are actually unbound in the encoding and not simply
+                    # because they are not necessary to uniquely identify the
+                    # instruction; see "UCVTF"
+                    subset = EncodingsSet.make_singleton(subset.get_singleton())
+                self.children |= {EncodingsTree(subset)}
 
     def is_leaf(self):
         return(self.leaf is not None)
