@@ -87,18 +87,18 @@ inline bool aarch64_decode::decode_a64(uint32_t ir)
       £- if loop.index0 != 0
    &&
       £- endif
-      £ for bit_range in disjunctives
  (
+      £- for bit_range in disjunctives
         £- if loop.index0 != 0
-    ||
+ ||
         £- endif
         £- if bit_range.low == bit_range.high
-BITSEL(ir, {{bit_range.high}}) == {{bit_range.v}}
+ BITSEL(ir, {{bit_range.high}}) == {{bit_range.v}}
         £- else
-UNSIGNED_BITS(ir, {{bit_range.high}}, {{bit_range.low}}) == {{bit_range.v}}
+ UNSIGNED_BITS(ir, {{bit_range.high}}, {{bit_range.low}}) == {{bit_range.v}}
         £- endif
-)
       £ endfor
+ )
     £ endfor
   ) {
     £ if not enc_set.is_singleton()

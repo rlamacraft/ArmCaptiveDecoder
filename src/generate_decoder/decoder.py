@@ -125,7 +125,7 @@ class EncodingsSet():
             if not elem['v'] == None:
                 no_repeat_none.append((BitValueType.Bound,elem))
             else:
-                if index == 0 and elements[1]['v'] is not None: # if this [0] is None and [1] is not None then we want to skip over [0], with a dusjunctive of both 0 and 1
+                if(index == 0) and (elements[1]['v'] is not None): # if this [0] is None and [1] is not None then we want to skip over [0], with a dusjunctive of both 0 and 1
                     no_repeat_none.append((BitValueType.Unbound, elem))
                 elif no_repeat_none != [] and no_repeat_none[-1] != None:
                     # only add a None if something else has been added first
@@ -142,7 +142,7 @@ class EncodingsSet():
             {'v': None, 'high': i, 'low': i}
             for i in range(0,32)])
         conjunctive = []
-        initial = [{'v':0,'high':None,'low':None}] # disjunctives
+        initial = [{'v':0,'high':None,'low':None}]
         disjunctive = initial
         for datum in none_separated_bit_data:
             if datum is None:
@@ -156,8 +156,20 @@ class EncodingsSet():
                         'high': acc['high'] if acc['high'] is not None else 31 - value['high'],
                         'low': 31 - value['low']
                     } for acc in disjunctive]
-                # else:
-                    # TODO: duplicate all elements of disjunctive, with 1 and 0 for value['v'] and the respective values for high and low
+                else:
+                    new_disjunctive = []
+                    for dis in disjunctive:
+                        new_disjunctive.append({
+                            'v': (dis['v'] * 2) + 0,
+                            'high': dis['high'] if dis['high'] is not None else 31 - value['high'],
+                            'low': 31 - value['low']
+                        })
+                        new_disjunctive.append({
+                            'v': (dis['v'] * 2) + 1,
+                            'high': dis['high'] if dis['high'] is not None else 31 - value['high'],
+                            'low': 31 - value['low']
+                        })
+                    disjunctive = new_disjunctive
         return(conjunctive)
 
 def findCommonBitsAndSplitRecursively(encoding_set):
