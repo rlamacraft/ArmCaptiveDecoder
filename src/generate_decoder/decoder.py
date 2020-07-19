@@ -182,6 +182,8 @@ class EncodingsSet():
                             'low': 31 - value['low']
                         })
                     disjunctive = new_disjunctive
+        if(disjunctive != initial):
+            conjunctive.append(disjunctive)
         return(conjunctive)
 
 def findCommonBitsAndSplitRecursively(encoding_set):
