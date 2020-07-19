@@ -1,6 +1,6 @@
 import itertools
 from parser import parseAllFiles
-from decoder import EncodingsSet, findCommonBitsAndSplitRecursively
+from decoder import EncodingsSet, EncodingsTree
 from code_generator import generate_code
 
 def pop_many(count, initial_set):
@@ -25,11 +25,11 @@ if __name__ == "__main__":
     print(len(encodings), "encodings found.")
 
     encoding_set = EncodingsSet(set(encodings), {})
-    encodings_sets = set(list(findCommonBitsAndSplitRecursively(encoding_set)))
+    encodings_tree = EncodingsTree(encoding_set)
 
     # # [print(str(es)) for es in encodings_sets]
 
-    generate_code(encodings_sets, instructions)
+    generate_code(encodings_tree, instructions)
 
     # frequency_of_length_of_unbound_bit_sequences(encodings)
 
