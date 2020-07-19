@@ -151,6 +151,8 @@ class EncodingsSet():
                     'high': accumulator['high'] if accumulator['high'] is not None else 31 - datum['high'],
                     'low': 31 - datum['low']
                 }
+        if(accumulator != initial):
+            data.append(accumulator)
         return(data)
 
 # The nodes of a decode tree, where the leaves at EncodingsSets
