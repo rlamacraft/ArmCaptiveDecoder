@@ -124,18 +124,11 @@ class EncodingsSet():
 
     def _remove_repeated_none_and_leading_none(self, elements):
         no_repeat_none = []
-        for index, elem in enumerate(elements):
-            if not elem['v'] == None:
-                no_repeat_none.append((BitValueType.Bound,elem))
+        for elem in elements:
+            if not elem == None:
+                no_repeat_none.append(elem)
             else:
-                if    index > 0                           \
-                  and index < len(elements) - 1           \
-                  and elements[index - 1]['v'] is not None\
-                  and elements[index + 1]['v'] is not None:
-                    no_repeat_none.append((BitValueType.Unbound, elem))
-                elif no_repeat_none != [] and no_repeat_none[-1] != None:
-                    # only add a None if something else has been added first
-                    #   and the last element isn't a None to drop repeat None
+                if no_repeat_none != [] and no_repeat_none[-1] != None:
                     no_repeat_none.append(None)
         return(no_repeat_none)
 
@@ -144,39 +137,21 @@ class EncodingsSet():
             return([])
         none_separated_bit_data = self._remove_repeated_none_and_leading_none([
             {'v':self.shared_bits[i].value,'high':i,'low':i}
-            if i in self.shared_bits else
-            {'v': None, 'high': i, 'low': i}
-            for i in range(0,32)])
-        conjunctive = []
-        initial = [{'v':0,'high':None,'low':None}]
-        disjunctive = initial
+            if i in self.shared_bits else None for i in range(0,32)])
+        data = []
+        initial = {'v':0,'high':None,'low':None}
+        accumulator = initial
         for datum in none_separated_bit_data:
             if datum is None:
-                conjunctive.append(disjunctive)
-                disjunctive = initial
+                data.append(accumulator)
+                accumulator = initial
             else:
-                (t, value) = datum
-                if t == BitValueType.Bound:
-                    disjunctive = [{
-                        'v': (acc['v'] * 2) + value['v'],
-                        'high': acc['high'] if acc['high'] is not None else 31 - value['high'],
-                        'low': 31 - value['low']
-                    } for acc in disjunctive]
-                else:
-                    new_disjunctive = []
-                    for dis in disjunctive:
-                        new_disjunctive.append({
-                            'v': (dis['v'] * 2) + 0,
-                            'high': dis['high'] if dis['high'] is not None else 31 - value['high'],
-                            'low': 31 - value['low']
-                        })
-                        new_disjunctive.append({
-                            'v': (dis['v'] * 2) + 1,
-                            'high': dis['high'] if dis['high'] is not None else 31 - value['high'],
-                            'low': 31 - value['low']
-                        })
-                    disjunctive = new_disjunctive
-        return(conjunctive)
+                accumulator = {
+                    'v': (accumulator['v'] * 2) + datum['v'],
+                    'high': accumulator['high'] if accumulator['high'] is not None else 31 - datum['high'],
+                    'low': 31 - datum['low']
+                }
+        return(data)
 
 # The nodes of a decode tree, where the leaves at EncodingsSets
 class EncodingsTree():
