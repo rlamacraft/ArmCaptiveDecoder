@@ -49,8 +49,8 @@ return true;
 
 £ macro encoding_tree(tree)
 £ if tree.source_enc_set.has_shared_bits()
-  if( 
-  £- set conjunctives = enc_set.shared_bits_as_list_of_ranges()
+if( 
+  £- set conjunctives = tree.source_enc_set.shared_bits_as_list_of_ranges()
   £- for disjunctives in conjunctives
     £- if loop.index0 != 0
    &&
@@ -68,7 +68,7 @@ return true;
     £ endfor
  )
   £ endfor
-  ) {
+) {
 £ endif
 £ if tree.is_leaf()
   {{ encoding_set(tree.leaf) }}
@@ -141,7 +141,7 @@ captive::arch::JumpInfo aarch64_decode::get_jump_info()
 
 inline bool aarch64_decode::decode_a64(uint32_t ir)
 {
-  {{ encoding_tree(tree) | indent(2) }}
+{{ encoding_tree(tree) | indent(0) }}
   return false;
 }
 
