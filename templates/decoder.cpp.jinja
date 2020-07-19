@@ -10,6 +10,7 @@
 
 £ macro encoding(enc)
 // {{ enc.instruction.name }} [{{enc.instruction.fileName}}]
+// {{ enc }}
 £ set ic = common.instruction_class(enc)
 opcode = {{common.opcode(enc)}};
 £ if ic in jumps.keys()

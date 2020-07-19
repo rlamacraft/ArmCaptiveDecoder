@@ -29,6 +29,13 @@ class EncodingsSet():
             return(ret)
         raise ValueError("Only call if this EncodingsSet is unknown to be a singleton")
 
+    @staticmethod
+    def make_singleton(enc):
+        shared_bits = dict()
+        for i in range(0,32):
+            (bitType, bitValue) = enc.getBit(i)
+            if bitType == BitValueType.Bound:
+
     def __str__(self):
         out = f"{len(self.encodings)} instructions share the bits: "
         for bit in range(0,32):
@@ -176,6 +183,8 @@ class EncodingsSet():
                             'low': 31 - value['low']
                         })
                     disjunctive = new_disjunctive
+        if(disjunctive != initial):
+            conjunctive.append(disjunctive)
         return(conjunctive)
 
 # The nodes of a decode tree, where the leaves at EncodingsSets
@@ -190,7 +199,16 @@ class EncodingsTree():
             self.children = None
         else:
             self.leaf = None
-            self.children = set([EncodingsTree(x) for x in no_empty_enc_sets])
+            self.children = set()
+            for subset in no_empty_enc_sets:
+                if(subset.is_singleton()):
+                    # produce the most precise singleton encodings set to ensure that
+                    # the unbound bit hopping is used minimally i.e. only hop unbound
+                    # bits that are actually unbound in the encoding and not simply
+                    # because they are not necessary to uniquely identify the
+                    # instruction; see "UCVTF"
+                    subset = EncodingsSet.make_singleton(subset.get_singleton())
+                self.children |= {EncodingsTree(subset)}
 
     def is_leaf(self):
         return(self.leaf is not None)
