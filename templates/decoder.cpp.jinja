@@ -50,16 +50,24 @@ return true;
 £ macro encoding_tree(tree)
 £ if tree.source_enc_set.has_shared_bits()
   if( 
-    £- for bit_range in tree.source_enc_set.shared_bits_as_list_of_ranges()
+  £- set conjunctives = enc_set.shared_bits_as_list_of_ranges()
+  £- for disjunctives in conjunctives
+    £- if loop.index0 != 0
+   &&
+    £- endif
+ (
+    £- for bit_range in disjunctives
       £- if loop.index0 != 0
-    &&
+ ||
       £- endif
-      £ if bit_range.low == bit_range.high
-  BITSEL(ir, {{bit_range.high}}) == {{bit_range.v}}
-      £ else
-  UNSIGNED_BITS(ir, {{bit_range.high}}, {{bit_range.low}}) == {{bit_range.v}}
-      £ endif
+      £- if bit_range.low == bit_range.high
+ BITSEL(ir, {{bit_range.high}}) == {{bit_range.v}}
+      £- else
+ UNSIGNED_BITS(ir, {{bit_range.high}}, {{bit_range.low}}) == {{bit_range.v}}
+      £- endif
     £ endfor
+ )
+  £ endfor
   ) {
 £ endif
 £ if tree.is_leaf()
