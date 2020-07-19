@@ -26,6 +26,15 @@ class EncodingsSet():
             return(ret)
         raise ValueError("Only call if this EncodingsSet is unknown to be a singleton")
 
+    @staticmethod
+    def make_singleton(enc):
+        shared_bits = dict()
+        for i in range(0,32):
+            (bitType, bitValue) = enc.getBit(i)
+            if bitType == BitValueType.Bound:
+                shared_bits[i] = bitValue
+        return(EncodingsSet([enc], shared_bits))
+
     def __str__(self):
         out = f"{len(self.encodings)} instructions share the bits: "
         for bit in range(0,32):
@@ -186,8 +195,8 @@ def findCommonBitsAndSplitRecursively(encoding_set):
             # we don't care about empty encoding sets
             pass
         elif len(subset) == 1:
-            # don't split singletons sets to keep the minimum shared_bits set
-            encoding_subsubsets |= {subset}
+            # produce the most precise singleton encodings set to ensure that the unbound bit hopping is used minimally i.e. only hop unbound bits that are actually unbound in the encoding and not simply because they are not necessary to uniquely identify the instruction; see "UCVTF"
+            encoding_subsubsets |= {EncodingsSet.make_singleton(subset.get_singleton())}
         else:
             encoding_subsubsets |= findCommonBitsAndSplitRecursively(subset)
     return(encoding_subsubsets)
