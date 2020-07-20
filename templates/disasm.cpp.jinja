@@ -21,6 +21,10 @@ int disasm(uint32_t ir) {
   }
   £ endfor
 £ endfor
+  if(decoder.opcode == aarch64_decode_a64::aarch64_unknown)
+  {
+    printf("unknown\n");
+  }
 
   return 0;
 }
