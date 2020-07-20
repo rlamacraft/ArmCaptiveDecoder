@@ -35,6 +35,8 @@ class EncodingsSet():
         for i in range(0,32):
             (bitType, bitValue) = enc.getBit(i)
             if bitType == BitValueType.Bound:
+                shared_bits[i] = bitValue
+        return(EncodingsSet([enc], shared_bits))
 
     def __str__(self):
         out = f"{len(self.encodings)} instructions share the bits: "
