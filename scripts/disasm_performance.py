@@ -24,4 +24,4 @@ for file in files:
             print(res.stderr)
             exit()
         sum += float(res.stdout)
-    print("%10s" % file, str(sum / iterations)) # currently prints the mean average
+    print("%20s" % file, str(sum / iterations)) # currently prints the mean average
