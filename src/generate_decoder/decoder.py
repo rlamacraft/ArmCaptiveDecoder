@@ -134,10 +134,24 @@ class EncodingsSet():
             if not elem['v'] == None:
                 no_repeat_none.append((BitValueType.Bound,elem))
             else:
-                if    index > 0                           \
-                  and index < len(elements) - 1           \
-                  and elements[index - 1]['v'] is not None\
-                  and elements[index + 1]['v'] is not None:
+                if        index > 0                            \
+                      and index < len(elements) - 1            \
+                      and elements[index - 1]['v'] is not None \
+                      and elements[index + 1]['v'] is not None:
+                    no_repeat_none.append((BitValueType.Unbound, elem))
+                elif      index > 0                            \
+                      and index < len(elements) - 2            \
+                      and elements[index - 1]['v'] is not None \
+                      and elements[index + 1]['v'] is None     \
+                      and elements[index + 2]['v'] is not None:
+                    print([enc.instruction.name for enc in self.encodings])
+                    no_repeat_none.append((BitValueType.Unbound, elem))
+                elif     index > 1                            \
+                     and index < len(elements) - 1            \
+                     and elements[index - 2]['v'] is not None \
+                     and elements[index - 1]['v'] is None     \
+                     and elements[index + 1]['v'] is not None:
+                    # print(self.encodings)
                     no_repeat_none.append((BitValueType.Unbound, elem))
                 elif no_repeat_none != [] and no_repeat_none[-1] != None:
                     # only add a None if something else has been added first
