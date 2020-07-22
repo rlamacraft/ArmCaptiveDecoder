@@ -2,12 +2,22 @@
 #include <iostream>
 #include <stdio.h>
 #include <time.h>
-#include "../../out/disasm.cpp"
+// #include "../../out/disasm.cpp"
+#include "../../out/arm64-decode.cpp"
 
 using namespace captive::arch::aarch64;
 
 #define ONE_MB_INST_DATA 25 * 100 * 1000
 #define NUM_OF_INSTRUCTIONS ONE_MB_INST_DATA
+
+bool just_decode(uint32_t ir) {
+  captive::arch::aarch64::aarch64_decode_a64 decoder;
+  decoder.isa_mode = aarch64_decode_a64::aarch64_a64;
+  uint64_t pc = 0x0000000000000000;
+  uint32_t* ptr = &ir;
+  bool is_valid = decoder.decode(0, pc, ptr);
+  return is_valid;
+}
 
 int main(int argc, char *argv[]) {
 
@@ -33,7 +43,8 @@ int main(int argc, char *argv[]) {
 
   for(int i = 0; i < NUM_OF_INSTRUCTIONS; i++) {
     // printf("%08x ", inst_data[i]); 
-    disasm(inst_data[i]);
+    // disasm(inst_data[i]);
+    just_decode(inst_data[i]);
   }
 
   clock_t end = clock();
