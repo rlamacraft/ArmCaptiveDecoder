@@ -7,7 +7,7 @@
 
 using namespace captive::arch::aarch64;
 
-#define ONE_MB_INST_DATA 25 * 100 * 1000
+#define ONE_MB_INST_DATA 25 * 10 * 1000
 #define NUM_OF_INSTRUCTIONS ONE_MB_INST_DATA
 
 bool just_decode(uint32_t ir) {
@@ -31,12 +31,17 @@ int main(int argc, char *argv[]) {
   FILE *fp = fopen(argv[1], "rb");
   uint32_t inst_data[NUM_OF_INSTRUCTIONS];
   int index = 0;
+
   while( fread(bytes, 4, 1, fp) != 0) {
     if(index == NUM_OF_INSTRUCTIONS) {
       printf("Reading more instructions than expected\n");
       return 1;
     }
     inst_data[index++] = bytes[0] | (bytes[1]<<8) | (bytes[2]<<16) | (bytes[3]<<24);
+  }
+  if(index != NUM_OF_INSTRUCTIONS) {
+    printf("Didn't read enough data\n");
+    return 1;
   }
 
   clock_t begin = clock();
