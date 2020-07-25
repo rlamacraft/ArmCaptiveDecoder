@@ -2,7 +2,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <time.h>
-#include "../../out/arm64-decode.cpp"
+// #include "../../out/arm64-decode.cpp"
+#include "../../out/disasm.cpp"
 
 using namespace captive::arch::aarch64;
 
@@ -39,7 +40,11 @@ int main(int argc, char *argv[]) {
       printf("Reading more instructions than expected\n");
       return 1;
     }
-    just_decode(bytes[0] | (bytes[1]<<8) | (bytes[2]<<16) | (bytes[3]<<24));
+    // just_decode(bytes[0] | (bytes[1]<<8) | (bytes[2]<<16) | (bytes[3]<<24));
+    uint32_t value = bytes[0] | (bytes[1]<<8) | (bytes[2]<<16) | (bytes[3]<<24);
+    printf("index=%i, value=%08x, output=", index, value);
+    disasm(value);
+    // disasm(bytes[0] | (bytes[1]<<8) | (bytes[2]<<16) | (bytes[3]<<24));
     index++;
   }
   if(index != NUM_OF_INSTRUCTIONS) {
