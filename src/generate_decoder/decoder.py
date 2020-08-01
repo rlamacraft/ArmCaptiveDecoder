@@ -177,3 +177,10 @@ class EncodingsTree():
             return(0)
         else:
             return(len(self.children))
+
+    def max_depth(self):
+        if self.is_leaf():
+            return(0)
+        else:
+            max_depth = max([t.max_depth() for t in self.children])
+            return(1 + max_depth)
