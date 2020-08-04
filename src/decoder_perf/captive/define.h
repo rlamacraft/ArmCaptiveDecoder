@@ -84,21 +84,21 @@ static inline void *vm_phys_to_virt(uintptr_t ptr) {
 	return (void *)((uintptr_t)VM_VIRT_SPLIT + ptr);
 }
 
-static inline uintptr_t vm_virt_to_phys(void *ptr) {
-	if ((uintptr_t)ptr >= VM_VIRT_KERNEL) {
-		assert(false);
-		__builtin_unreachable();
-	} else {
-		uintptr_t ret = (uintptr_t)((uintptr_t)ptr - (uintptr_t)VM_VIRT_SPLIT);
-		assert(ret < VM_PHYS_GPM_BASE);
-		return ret;
-	}
-}
+/* static inline uintptr_t vm_virt_to_phys(void *ptr) { */
+/* 	if ((uintptr_t)ptr >= VM_VIRT_KERNEL) { */
+/* 		assert(false); */
+/* 		__builtin_unreachable(); */
+/* 	} else { */
+/* 		uintptr_t ret = (uintptr_t)((uintptr_t)ptr - (uintptr_t)VM_VIRT_SPLIT); */
+/* 		assert(ret < VM_PHYS_GPM_BASE); */
+/* 		return ret; */
+/* 	} */
+/* } */
 
-static inline uintptr_t vm_phys_to_guest_phys(uintptr_t ptr) {
-	assert(ptr >= VM_PHYS_GPM_BASE);
-	return (uintptr_t)(ptr - VM_PHYS_GPM_BASE);
-}
+/* static inline uintptr_t vm_phys_to_guest_phys(uintptr_t ptr) { */
+/* 	assert(ptr >= VM_PHYS_GPM_BASE); */
+/* 	return (uintptr_t)(ptr - VM_PHYS_GPM_BASE); */
+/* } */
 
 static inline void *guest_phys_to_vm_virt(uintptr_t ptr) {
 	return vm_phys_to_virt(VM_PHYS_GPM_BASE + ptr);
