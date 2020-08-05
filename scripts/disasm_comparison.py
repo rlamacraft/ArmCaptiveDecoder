@@ -2,8 +2,10 @@
 
 import sys
 
+def print_instruction(i, o, c, d):
+    print(i + 1, '&', o.strip('\n'), '&', c.strip('\n'), '&', d.strip('\n'), '\\\\')
+
 directory = sys.argv[1]
-# files = [f for f in os.listdir(directory) if isfile(join(directory, f)) and os.access(join(directory, f), os.X_OK)]
 
 all_different = 0
 d_and_c_and_not_o = 0
@@ -18,6 +20,7 @@ with open(directory + 'my_disasm.txt', 'r') as my_disasm:
                d = my_disasm.readline()
                c = capstone.readline()
                o = objdump.readline()
+               print_instruction(i, o, c, d)
                if c == d == o:
                    all_same += 1
                elif c == d != o:
